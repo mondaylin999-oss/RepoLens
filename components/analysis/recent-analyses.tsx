@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, type LocalAnalysisHistoryEntry } from "@/lib/analysis/local-history";
 
 export function RecentAnalyses() {
@@ -29,6 +30,15 @@ export function RecentAnalyses() {
     }
   }
 
+  function clearHistory() {
+    try {
+      window.localStorage.removeItem(ANALYSIS_HISTORY_KEY);
+    } catch {
+      // Keep the on-screen list clear for this session if storage is blocked.
+    }
+    setHistory([]);
+  }
+
   if (!ready) return null;
 
   return (
@@ -39,15 +49,22 @@ export function RecentAnalyses() {
             <h2 id="recent-analyses-heading" className="font-semibold">Recent analyses</h2>
             <p className="mt-1 text-sm text-muted-foreground">Optional history, saved only in this browser.</p>
           </div>
-          <label className="inline-flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={enabled}
-              onChange={(event) => toggleHistory(event.target.checked)}
-              className="size-4 accent-primary"
-            />
-            Save analysis history on this device
-          </label>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={enabled}
+                onChange={(event) => toggleHistory(event.target.checked)}
+                className="size-4 accent-primary"
+              />
+              Save analysis history on this device
+            </label>
+            {enabled && history.length > 0 && (
+              <Button type="button" variant="ghost" size="sm" onClick={clearHistory}>
+                Clear history
+              </Button>
+            )}
+          </div>
         </div>
         {enabled && history.length > 0 && (
           <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
