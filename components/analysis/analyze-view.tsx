@@ -133,7 +133,7 @@ export function AnalyzeView({ url }: { url: string }) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mb-8">
+      <div className="no-print mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Repository analysis</h1>
         <p className="mt-1 text-sm text-muted-foreground">Paste any public GitHub repository URL to check its portfolio readiness.</p>
         <RepoUrlForm key={url} defaultValue={url} busy={state.status === "loading"} autoFocus={!url} className="mt-4 max-w-3xl" />
@@ -178,7 +178,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
   ];
 
   return (
-    <div className="animate-fade-up space-y-6">
+    <div className="print-report animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Analyzed repository:{" "}
@@ -186,7 +186,8 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
             {submittedUrl}
           </a>
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="no-print flex flex-wrap gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Print report</Button>
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
