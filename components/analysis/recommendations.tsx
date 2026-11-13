@@ -60,6 +60,15 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
         <CardDescription>Based only on what this analysis found, ordered by impact.</CardDescription>
       </CardHeader>
       <CardContent>
+        {visibleRecommendations[0] && (
+          <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">Smallest next step</p>
+            <p className="mt-1 font-medium">{visibleRecommendations[0].howToImprove[0]}</p>
+            <a href={`#recommendation-${visibleRecommendations[0].checkId}`} className="mt-2 inline-block text-sm text-primary hover:underline">
+              See related recommendation: {visibleRecommendations[0].title}
+            </a>
+          </div>
+        )}
         {hiddenRecommendations.length > 0 && (
           <div className="mb-4 rounded-lg border border-dashed p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -105,7 +114,7 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
             {visibleRecommendations.map((r) => {
               const docs = OFFICIAL_DOCS[r.checkId];
               return (
-              <li key={r.checkId} className="flex flex-col rounded-lg border p-5">
+              <li id={`recommendation-${r.checkId}`} key={r.checkId} className="scroll-mt-24 flex flex-col rounded-lg border p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">{r.title}</h3>
                   <div className="flex gap-1.5">
