@@ -10,6 +10,13 @@ export function formatCount(n: number): string {
   return n < 1000 ? String(n) : compact.format(n);
 }
 
+export function formatSize(kilobytes: number): string {
+  if (kilobytes < 1024) return `${kilobytes} KB`;
+  const megabytes = kilobytes / 1024;
+  if (megabytes < 1024) return `${megabytes.toFixed(1)} MB`;
+  return `${(megabytes / 1024).toFixed(1)} GB`;
+}
+
 export function formatDate(iso: string | null): string {
   if (!iso) return "Unknown";
   return new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "numeric" }).format(new Date(iso));

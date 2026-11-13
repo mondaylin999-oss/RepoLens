@@ -3,7 +3,7 @@ import { Archive, CalendarDays, CircleDot, Clock, ExternalLink, GitBranch, GitFo
 import type { RepoMetadata } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatCount, formatDate, relativeTime } from "@/lib/utils";
+import { formatCount, formatDate, formatSize, relativeTime } from "@/lib/utils";
 
 export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licenseFile?: string }) {
   const updated = repo.pushedAt ?? repo.updatedAt;
@@ -32,7 +32,8 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
             <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all hover:underline">
               {repo.name}
             </a>
-            {repo.language && <Badge>{repo.language}</Badge>}
+            {repo.language && <Badge>Language: {repo.language}</Badge>}
+            <Badge variant="muted">Size: {formatSize(repo.sizeKb)}</Badge>
             <Badge variant="outline"><GitBranch className="size-3" />Branch: {repo.defaultBranch}</Badge>
             <Badge variant="muted"><CalendarDays className="size-3" />Created {relativeTime(repo.createdAt)}</Badge>
             {licenseName && (
