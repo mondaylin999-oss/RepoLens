@@ -57,7 +57,7 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
             {repo.archived && <Badge variant="warning"><Archive className="size-3" />{translate("Archived")}</Badge>}
             {repo.isFork && <Badge variant="muted"><GitFork className="size-3" />{translate("Fork")}</Badge>}
           </h2>
-          <p className={repo.description ? "mt-2 text-pretty text-muted-foreground" : "mt-2 italic text-muted-foreground/70"}>
+          <p className={repo.description ? "mt-2 text-pretty text-muted-foreground" : "mt-2 italic text-muted-foreground"}>
             {repo.description ?? translate("No description provided.")}
           </p>
           {repo.topics.length > 0 && (

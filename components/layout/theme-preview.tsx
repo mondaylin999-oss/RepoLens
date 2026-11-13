@@ -51,7 +51,7 @@ export function ThemePreview() {
             </div>
             <div>
               <p className="font-medium">vercel/next.js</p>
-              <p className={cn("mt-1 text-sm", dark ? "text-slate-400" : "text-slate-500")}>{t("Strong portfolio foundation")}</p>
+              <p className={cn("mt-1 text-sm", dark ? "text-slate-400" : "text-slate-600")}>{t("Strong portfolio foundation")}</p>
             </div>
           </div>
           <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
