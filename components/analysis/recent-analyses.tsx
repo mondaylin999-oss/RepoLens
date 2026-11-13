@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, type LocalAnalysisHistoryEntry } from "@/lib/analysis/local-history";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function RecentAnalyses() {
+  const { text: t } = useLanguage();
   const [ready, setReady] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [history, setHistory] = useState<LocalAnalysisHistoryEntry[]>([]);
@@ -46,8 +48,8 @@ export function RecentAnalyses() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 id="recent-analyses-heading" className="font-semibold">Recent analyses</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Optional history, saved only in this browser.</p>
+            <h2 id="recent-analyses-heading" className="font-semibold">{t("Recent analyses")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Optional history, saved only in this browser.")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <label className="inline-flex items-center gap-2 text-sm">
@@ -57,11 +59,11 @@ export function RecentAnalyses() {
                 onChange={(event) => toggleHistory(event.target.checked)}
                 className="size-4 accent-primary"
               />
-              Save analysis history on this device
+              {t("Save analysis history on this device")}
             </label>
             {enabled && history.length > 0 && (
               <Button type="button" variant="ghost" size="sm" onClick={clearHistory}>
-                Clear history
+                {t("Clear history")}
               </Button>
             )}
           </div>
@@ -80,7 +82,7 @@ export function RecentAnalyses() {
             ))}
           </ul>
         )}
-        {enabled && history.length === 0 && <p className="mt-3 text-sm text-muted-foreground">Your analyzed repositories will appear here.</p>}
+        {enabled && history.length === 0 && <p className="mt-3 text-sm text-muted-foreground">{t("Your analyzed repositories will appear here.")}</p>}
       </div>
     </section>
   );

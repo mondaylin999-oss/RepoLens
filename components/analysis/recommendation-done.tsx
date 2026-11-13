@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function RecommendationDone({ repoName, recommendationId, title }: { repoName: string; recommendationId: string; title: string }) {
+  const { text: t } = useLanguage();
   const storageKey = `repolens-recommendations:${repoName}`;
   const [done, setDone] = useState(false);
 
@@ -28,8 +30,8 @@ export function RecommendationDone({ repoName, recommendationId, title }: { repo
 
   return (
     <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-      <input type="checkbox" checked={done} onChange={toggle} aria-label={`Mark ${title} as complete`} className="size-4 accent-primary" />
-      <span>{done ? "Completed" : "Mark complete"}</span>
+      <input type="checkbox" checked={done} onChange={toggle} aria-label={`${t("Mark")} ${t(title)} ${t("as complete")}`} className="size-4 accent-primary" />
+      <span>{done ? t("Completed") : t("Mark complete")}</span>
     </label>
   );
 }

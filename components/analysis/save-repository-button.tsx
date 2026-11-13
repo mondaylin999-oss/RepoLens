@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { BookmarkCheck, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedScoreSnapshot } from "@/lib/analysis/local-history";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function SaveRepositoryButton({ repository, url, language, snapshot }: { repository: string; url: string; language: string | null; snapshot: SavedScoreSnapshot }) {
+  const { text: t } = useLanguage();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function SaveRepositoryButton({ repository, url, language, snapshot }: { 
   return (
     <Button type="button" variant="outline" size="sm" onClick={save} disabled={saved}>
       {saved ? <BookmarkCheck aria-hidden="true" /> : <BookmarkPlus aria-hidden="true" />}
-      {saved ? "Saved on this device" : "Save repository"}
+      {saved ? t("Saved on this device") : t("Save repository")}
     </Button>
   );
 }

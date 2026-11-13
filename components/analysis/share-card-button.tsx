@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function ShareCardButton({ repository, score, earned, complete, url }: {
   repository: string;
@@ -11,6 +12,7 @@ export function ShareCardButton({ repository, score, earned, complete, url }: {
   complete: boolean;
   url: string;
 }) {
+  const { text: t } = useLanguage();
   const [busy, setBusy] = useState(false);
 
   function downloadCard() {
@@ -79,7 +81,7 @@ export function ShareCardButton({ repository, score, earned, complete, url }: {
 
   return (
     <Button type="button" variant="outline" size="sm" onClick={downloadCard} disabled={busy}>
-      <Download aria-hidden="true" />{busy ? "Preparing card…" : "Download share card"}
+      <Download aria-hidden="true" />{busy ? t("Preparing card…") : t("Download share card")}
     </Button>
   );
 }

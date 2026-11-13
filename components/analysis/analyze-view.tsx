@@ -17,6 +17,7 @@ import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, re
 import { SaveRepositoryButton } from "./save-repository-button";
 import { CopyButton } from "./copy-button";
 import { ShareCardButton } from "./share-card-button";
+import { useLanguage } from "@/components/layout/language-provider";
 
 type State =
   | { status: "idle" }
@@ -25,6 +26,7 @@ type State =
   | { status: "error"; error: ApiError };
 
 export function AnalyzeView({ url, checklistOnly = false }: { url: string; checklistOnly?: boolean }) {
+  const { text: t } = useLanguage();
   const [state, setState] = useState<State>(url ? { status: "loading" } : { status: "idle" });
   const [loadingMessage, setLoadingMessage] = useState("Connecting to GitHub…");
   const [attempt, setAttempt] = useState(0);
@@ -136,8 +138,8 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       <div className="no-print mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Repository analysis</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Paste any public GitHub repository URL to check its portfolio readiness.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("Repository analysis")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("Paste any public GitHub repository URL to check its portfolio readiness.")}</p>
         <RepoUrlForm key={url} defaultValue={url} busy={state.status === "loading"} autoFocus={!url} className="mt-4 max-w-3xl" />
       </div>
 
@@ -152,6 +154,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
 }
 
 function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; submittedUrl: string; checklistOnly: boolean }) {
+  const { text: t } = useLanguage();
   const [includeScoreInShare, setIncludeScoreInShare] = useState(true);
   const [shareOrigin, setShareOrigin] = useState("");
   useEffect(() => setShareOrigin(window.location.origin), []);
@@ -263,9 +266,9 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       <div className="print-report animate-fade-up space-y-6">
         <p role="status" className="sr-only">Checklist results are ready for {data.repo.fullName}.</p>
         <div>
-          <h2 className="text-xl font-semibold">Checklist-only report</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on GitHub</a></p>
-          <p className="mt-1 text-xs text-muted-foreground">Based on public GitHub repository data checked {new Date(data.analyzedAt).toLocaleString()}.</p>
+          <h2 className="text-xl font-semibold">{t("Checklist-only report")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{t("View on GitHub")}</a></p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("Based on public GitHub repository data checked")} {new Date(data.analyzedAt).toLocaleString()}.</p>
         </div>
         <Checklist checks={data.checks} repoUrl={data.repo.htmlUrl} defaultBranch={data.repo.defaultBranch} fileCount={data.tree.fileCount} treeStatus={data.tree.status} />
       </div>
@@ -279,15 +282,15 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          Analyzed repository:{" "}
+          {t("Analyzed repository:")}{" "}
           <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all font-mono text-primary hover:underline">
             {submittedUrl}
           </a>
         </p>
         <div className="no-print flex flex-wrap gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Print report</Button>
-          <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>Save as PDF</Button>
-          <Button type="button" variant="outline" size="sm" onClick={exportMarkdown}><Download aria-hidden="true" />Export Markdown</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>{t("Print report")}</Button>
+          <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>{t("Save as PDF")}</Button>
+          <Button type="button" variant="outline" size="sm" onClick={exportMarkdown}><Download aria-hidden="true" />{t("Export Markdown")}</Button>
           <CopyButton value={planningSummary} label="Copy plain text summary" />
           <ShareCardButton repository={data.repo.fullName} score={data.score.score} earned={data.score.earned} complete={data.score.complete} url={data.repo.htmlUrl} />
           <SaveRepositoryButton
@@ -297,25 +300,25 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
             snapshot={{ score: data.score.score, earned: data.score.earned, complete: data.score.complete, analyzedAt: data.analyzedAt }}
           />
           <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
-            <Link href="/analyze">Analyze another repository</Link>
+            <Link href="/analyze">{t("Analyze another repository")}</Link>
           </Button>
         </div>
       </div>
       <div className="no-print rounded-xl border bg-card p-4">
         <label className="inline-flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" checked={includeScoreInShare} onChange={(event) => setIncludeScoreInShare(event.target.checked)} className="size-4 accent-primary" />
-          Include the readiness score in the shared report
+          {t("Include the readiness score in the shared report")}
         </label>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-          <input aria-label="Shareable report URL" readOnly value={shareUrl} className="h-9 min-w-0 flex-1 rounded-lg border bg-background px-3 font-mono text-xs text-muted-foreground" />
+          <input aria-label={t("Shareable report URL")} readOnly value={shareUrl} className="h-9 min-w-0 flex-1 rounded-lg border bg-background px-3 font-mono text-xs text-muted-foreground" />
           <CopyButton value={shareUrl} label="Copy link" />
-          <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-3 text-sm font-medium hover:bg-muted">Preview share link</a>
+          <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-3 text-sm font-medium hover:bg-muted">{t("Preview share link")}</a>
         </div>
       </div>
-      <dl aria-label="Analysis summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <dl aria-label={t("Analysis summary")} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {summary.map((item) => (
           <div key={item.label} className="rounded-xl border bg-card px-4 py-3">
-            <dt className="text-xs text-muted-foreground">{item.label}</dt>
+            <dt className="text-xs text-muted-foreground">{t(item.label)}</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums">{item.value}</dd>
             <p className="text-xs text-muted-foreground">{item.detail}</p>
           </div>
@@ -325,10 +328,9 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
         <div role="status" className="flex gap-3 rounded-xl border border-warning/40 bg-warning-soft p-4 text-sm">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
           <div>
-            <p className="font-medium">Analysis incomplete</p>
+            <p className="font-medium">{t("Analysis incomplete")}</p>
             <p className="mt-0.5 text-muted-foreground">
-              {tree.reason ?? "The repository's file list couldn't be fully read."} Checks that depend on missing files are marked
-              &ldquo;Unverified&rdquo; instead of failed, and no final score is shown.
+              {t(tree.reason ?? "The repository's file list couldn't be fully read.")} {t("Checks that depend on missing files are marked")} &ldquo;{t("Unverified")}&rdquo; {t("instead of failed, and no final score is shown.")}
             </p>
           </div>
         </div>

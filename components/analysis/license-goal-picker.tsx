@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 const GOALS = {
   permissive: {
@@ -26,30 +27,31 @@ const GOALS = {
 type Goal = keyof typeof GOALS;
 
 export function LicenseGoalPicker() {
+  const { text: t } = useLanguage();
   const [goal, setGoal] = useState<Goal | "">("");
   const choice = goal ? GOALS[goal] : null;
 
   return (
     <div className="mt-4 rounded-lg border bg-muted/30 p-4">
-      <label htmlFor="license-goal" className="text-sm font-medium">What is your main project goal?</label>
+      <label htmlFor="license-goal" className="text-sm font-medium">{t("What is your main project goal?")}</label>
       <select
         id="license-goal"
         value={goal}
         onChange={(event) => setGoal(event.target.value as Goal | "")}
         className="mt-2 h-10 w-full rounded-lg border border-input bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <option value="">Choose a goal to see common options</option>
-        {Object.entries(GOALS).map(([key, option]) => <option key={key} value={key}>{option.label}</option>)}
+        <option value="">{t("Choose a goal to see common options")}</option>
+        {Object.entries(GOALS).map(([key, option]) => <option key={key} value={key}>{t(option.label)}</option>)}
       </select>
       {choice && (
         <div aria-live="polite" className="mt-3 text-sm">
-          <p><span className="font-medium">Common option: {choice.license}.</span> {choice.detail}</p>
+          <p><span className="font-medium">{t("Common option:")} {choice.license}.</span> {t(choice.detail)}</p>
           <a href={choice.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-primary underline-offset-4 hover:underline">
-            Read the license summary
+            {t("Read the license summary")}
           </a>
         </div>
       )}
-      <p className="mt-2 text-xs text-muted-foreground">Compare the full terms and check any dependency requirements before choosing.</p>
+      <p className="mt-2 text-xs text-muted-foreground">{t("Compare the full terms and check any dependency requirements before choosing.")}</p>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ACCOUNT_SYNC_ENABLED_KEY, readAnalysisHistory } from "@/lib/analysis/local-history";
+import { useLanguage } from "@/components/layout/language-provider";
 
 interface AccountHistoryEntry {
   repository: string;
@@ -15,6 +16,7 @@ interface AccountHistoryEntry {
 }
 
 export function AccountHistory() {
+  const { text: t } = useLanguage();
   const [ready, setReady] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
@@ -96,22 +98,22 @@ export function AccountHistory() {
     <section aria-labelledby="account-history-heading" className="mt-4 rounded-xl border bg-card p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 id="account-history-heading" className="font-semibold">Use your history across devices</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in with GitHub to keep selected analysis history with your account.</p>
+          <h3 id="account-history-heading" className="font-semibold">{t("Use your history across devices")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{t("Sign in with GitHub to keep selected analysis history with your account.")}</p>
         </div>
         {authenticated ? (
-          <Button type="button" variant="outline" size="sm" onClick={() => void signOut({ callbackUrl: "/" })}>Sign out{name ? ` · ${name}` : ""}</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => void signOut({ callbackUrl: "/" })}>{t("Sign out")}{name ? ` · ${name}` : ""}</Button>
         ) : (
-          <Button type="button" onClick={() => void signIn("github", { callbackUrl: "/" })}>Sign in with GitHub</Button>
+          <Button type="button" onClick={() => void signIn("github", { callbackUrl: "/" })}>{t("Sign in with GitHub")}</Button>
         )}
       </div>
       {authenticated && (
         <label className="mt-4 inline-flex items-center gap-2 text-sm">
           <input type="checkbox" checked={enabled} disabled={busy} onChange={(event) => void setSync(event.target.checked)} className="size-4 accent-primary" />
-          Sync my analysis history to this account
+          {t("Sync my analysis history to this account")}
         </label>
       )}
-      {message && <p role="status" className="mt-3 text-sm text-muted-foreground">{message}</p>}
+      {message && <p role="status" className="mt-3 text-sm text-muted-foreground">{t(message)}</p>}
       {authenticated && entries.length > 0 && (
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {entries.slice(0, 10).map((entry, index) => (

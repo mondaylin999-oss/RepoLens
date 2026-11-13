@@ -2,6 +2,7 @@ import type { CheckResult, ScoreResult } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { scoreBand } from "@/lib/analysis/scoring";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/layout/language-provider";
 
 const BAND_COLOR = {
   excellent: "stroke-success text-success",
@@ -11,6 +12,7 @@ const BAND_COLOR = {
 } as const;
 
 export function ScoreCard({ score, checks }: { score: ScoreResult; checks: CheckResult[] }) {
+  const { text: t } = useLanguage();
   const r = 52;
   const c = 2 * Math.PI * r;
   const value = score.score ?? score.earned;
@@ -20,22 +22,20 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Readiness score</CardTitle>
-        <CardDescription>Basic portfolio presentation — not code quality or security.</CardDescription>
+        <CardTitle>{t("Readiness score")}</CardTitle>
+        <CardDescription>{t("Basic portfolio presentation — not code quality or security.")}</CardDescription>
         <details className="group text-sm">
           <summary className="w-fit cursor-pointer rounded-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            What does this score mean?
+            {t("What does this score mean?")}
           </summary>
           <p className="mt-2 text-muted-foreground">
-            It summarizes how ready this public repository looks to someone viewing it in a portfolio. Points come
-            from seven visible checks, and each result includes evidence. Missing file data can make the score
-            incomplete. It does not rate code quality or security.
+            {t("It summarizes how ready this public repository looks to someone viewing it in a portfolio. Points come from seven visible checks, and each result includes evidence. Missing file data can make the score incomplete. It does not rate code quality or security.")}
           </p>
         </details>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center">
-          <div className="relative size-44" role="img" aria-label={score.complete ? `Score ${score.score} out of 100` : `Incomplete: at least ${score.earned} of 100 points confirmed`}>
+          <div className="relative size-44" role="img" aria-label={score.complete ? `${t("Score")} ${score.score} ${t("out of 100")}` : `${t("Incomplete")}: ${t("at least")} ${score.earned} ${t("of 100 points confirmed")}`}>
             <svg viewBox="0 0 120 120" className="size-full -rotate-90">
               <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-muted" />
               {!score.complete && (
@@ -56,35 +56,35 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
               {score.complete ? (
                 <>
                   <span className={cn("text-5xl font-semibold tabular-nums tracking-tight", color)}>{score.score}</span>
-                  <span className="text-xs text-muted-foreground">out of 100</span>
+                  <span className="text-xs text-muted-foreground">{t("out of 100")}</span>
                 </>
               ) : (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wide text-warning">Incomplete</span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-warning">{t("Incomplete")}</span>
                   <span className="text-3xl font-semibold tabular-nums">≥ {score.earned}</span>
-                  <span className="text-xs text-muted-foreground">confirmed points</span>
+                  <span className="text-xs text-muted-foreground">{t("confirmed points")}</span>
                 </>
               )}
             </div>
           </div>
           <p className="mt-3 text-center text-sm font-medium">
-            {band ? band.label : `${score.unknownPoints} points couldn't be verified`}
+            {band ? t(band.label) : `${score.unknownPoints} ${t("points couldn't be verified")}`}
           </p>
         </div>
 
-        <ul className="mt-6 space-y-2.5" aria-label="Points by check">
+        <ul className="mt-6 space-y-2.5" aria-label={t("Points by check")}>
           {checks.map((ch) => (
             <li key={ch.id} className="text-sm">
               <div className="mb-1 flex justify-between gap-2">
                 <a
                   href={`#check-${ch.id}`}
-                  aria-label={`Jump to ${ch.label} check`}
+                  aria-label={`${t("Jump to")} ${t(ch.label)} ${t("check")}`}
                   className="rounded-sm text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  {ch.label}
+                  {t(ch.label)}
                 </a>
                 <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{ch.status === "pass" ? "Detected" : ch.status === "fail" ? "Not found" : "Unverified"}</span>
+                  <span>{t(ch.status === "pass" ? "Detected" : ch.status === "fail" ? "Not found" : "Unverified")}</span>
                   <span className="font-mono tabular-nums">{ch.status === "unknown" ? "?" : ch.points}/{ch.maxPoints}</span>
                 </span>
               </div>

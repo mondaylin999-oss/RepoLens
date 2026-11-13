@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { RepoMetadata } from "@/lib/types";
 import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
+import { useLanguage } from "@/components/layout/language-provider";
 
 type Format = "short" | "portfolio" | "linkedin" | "caseStudy" | "website" | "resume";
 type Audience = "recruiters" | "collaborators" | "clients";
@@ -47,6 +48,7 @@ const FORMATS: { id: Format; label: string }[] = [
 ];
 
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
+  const { text: t } = useLanguage();
   const [format, setFormat] = useState<Format>("portfolio");
   const [compareMode, setCompareMode] = useState(false);
   const [compareFormat, setCompareFormat] = useState<Format>("linkedin");
@@ -110,23 +112,23 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <CardTitle>Portfolio description</CardTitle>
-          <CardDescription>Generated from verified repository details only. Edit it freely before copying.</CardDescription>
+          <CardTitle>{t("Portfolio description")}</CardTitle>
+          <CardDescription>{t("Generated from verified repository details only. Edit it freely before copying.")}</CardDescription>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div>
-            <label htmlFor="description-audience" className="mr-2 text-xs text-muted-foreground">Write for</label>
+            <label htmlFor="description-audience" className="mr-2 text-xs text-muted-foreground">{t("Write for")}</label>
             <select id="description-audience" value={audience} onChange={(event) => setAudience(event.target.value as Audience)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {AUDIENCES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+              {AUDIENCES.map((option) => <option key={option.id} value={option.id}>{t(option.label)}</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="description-tone" className="mr-2 text-xs text-muted-foreground">Tone</label>
+            <label htmlFor="description-tone" className="mr-2 text-xs text-muted-foreground">{t("Tone")}</label>
             <select id="description-tone" value={tone} onChange={(event) => setTone(event.target.value as Tone)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {TONES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+              {TONES.map((option) => <option key={option.id} value={option.id}>{t(option.label)}</option>)}
             </select>
           </div>
-          <div role="tablist" aria-label="Description format" className="inline-flex shrink-0 rounded-lg bg-muted p-1">
+          <div role="tablist" aria-label={t("Description format")} className="inline-flex shrink-0 rounded-lg bg-muted p-1">
             {FORMATS.map((f) => (
               <button
                 key={f.id}
@@ -162,7 +164,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
                   format === f.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {f.label}
+                {t(f.label)}
               </button>
             ))}
           </div>
@@ -170,36 +172,36 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
       </CardHeader>
       <CardContent>
         <fieldset className="mb-4 rounded-lg border p-3">
-          <legend className="px-1 text-xs font-medium text-muted-foreground">Include verified facts</legend>
+        <legend className="px-1 text-xs font-medium text-muted-foreground">{t("Include verified facts")}</legend>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {FACTS.map((fact) => (
               <label key={fact.id} className="inline-flex cursor-pointer items-center gap-2 text-xs">
                 <input type="checkbox" checked={includedFacts[fact.id]} onChange={(event) => setIncludedFacts((current) => ({ ...current, [fact.id]: event.target.checked }))} className="size-4 accent-primary" />
-                {fact.label}
+                {t(fact.label)}
               </label>
             ))}
           </div>
         </fieldset>
         {description.placeholders.length > 0 && (
           <p className="mb-3 rounded-lg bg-warning-soft px-3 py-2 text-sm">
-            Some details aren&apos;t available on GitHub, so they&apos;re marked with <code className="font-mono">[brackets]</code>. Replace them with your own words.
+            {t("Some details aren't available on GitHub, so they're marked with")} <code className="font-mono">[brackets]</code>. {t("Replace them with your own words.")}
           </p>
         )}
         <label className="mb-3 inline-flex cursor-pointer items-center gap-2 text-sm">
           <input type="checkbox" checked={compareMode} onChange={(event) => setCompareMode(event.target.checked)} className="size-4 accent-primary" />
-          Compare two formats side by side
+          {t("Compare two formats side by side")}
         </label>
         {compareMode && (
           <label htmlFor="description-compare-format" className="mb-3 ml-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
-            Compare with
+            {t("Compare with")}
             <select id="description-compare-format" value={activeCompareFormat} onChange={(event) => setCompareFormat(event.target.value as Format)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {FORMATS.filter((item) => item.id !== format).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+              {FORMATS.filter((item) => item.id !== format).map((item) => <option key={item.id} value={item.id}>{t(item.label)}</option>)}
             </select>
           </label>
         )}
         <div className={compareMode ? "grid gap-4 lg:grid-cols-2" : ""}>
           <div id="description-format-panel" role="tabpanel" aria-labelledby={`description-tab-${format}`}>
-            <label htmlFor="description-text" className="mb-1 block text-xs font-medium text-muted-foreground">{FORMATS.find((item) => item.id === format)?.label}</label>
+            <label htmlFor="description-text" className="mb-1 block text-xs font-medium text-muted-foreground">{t(FORMATS.find((item) => item.id === format)?.label ?? "Portfolio entry")}</label>
             <Textarea
               id="description-text"
               value={text}
@@ -209,7 +211,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           </div>
           {compareMode && (
             <div>
-              <label htmlFor="description-compare-text" className="mb-1 block text-xs font-medium text-muted-foreground">{FORMATS.find((item) => item.id === activeCompareFormat)?.label}</label>
+              <label htmlFor="description-compare-text" className="mb-1 block text-xs font-medium text-muted-foreground">{t(FORMATS.find((item) => item.id === activeCompareFormat)?.label ?? "Portfolio entry")}</label>
               <Textarea
                 id="description-compare-text"
                 value={compareText}
@@ -220,12 +222,12 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           )}
         </div>
         <details className="mt-3 rounded-lg border px-3 py-2">
-          <summary className="cursor-pointer text-sm font-medium">See source facts for each sentence</summary>
+          <summary className="cursor-pointer text-sm font-medium">{t("See source facts for each sentence")}</summary>
           <ol className="mt-3 space-y-3">
             {sentences.map((sentence, index) => (
               <li key={`${index}-${sentence}`} className="border-l-2 border-primary/30 pl-3">
                 <p className="text-sm">{sentence}</p>
-                <p className="mt-1 text-xs text-muted-foreground">Source: {sourceFacts(sentence, repo)}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("Source:")} {t(sourceFacts(sentence, repo))}</p>
               </li>
             ))}
           </ol>
@@ -233,26 +235,26 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button onClick={onCopy}>
             {copy === "copied" ? <Check /> : <Copy />}
-            {copy === "copied" ? "Copied!" : "Copy Description"}
+            {copy === "copied" ? t("Copied!") : t("Copy Description")}
           </Button>
           <Button variant="outline" disabled={!edited} onClick={() => {
             setTexts((t) => ({ ...t, [textKey]: originalBaseText }));
             setIncludedFacts({ project: true, overview: true, technology: true, demo: true, source: true });
           }}>
-            <RotateCcw /> Reset
+            <RotateCcw /> {t("Reset")}
           </Button>
           <span role="status" aria-live="polite" className="text-sm text-muted-foreground">
-            {copy === "copied" && "Description copied to clipboard."}
-            {copy === "failed" && <span className="text-danger">Couldn&apos;t access the clipboard — select the text and copy it manually.</span>}
+            {copy === "copied" && t("Description copied to clipboard.")}
+            {copy === "failed" && <span className="text-danger">{t("Couldn't access the clipboard — select the text and copy it manually.")}</span>}
           </span>
         </div>
         <div className="mt-4 border-t pt-3">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Copy any format</p>
+          <p className="mb-2 text-xs font-medium text-muted-foreground">{t("Copy any format")}</p>
           <div className="flex flex-wrap gap-2">
             {FORMATS.map((item) => (
-              <Button key={item.id} type="button" variant="outline" size="sm" aria-label={`Copy ${item.label}`} onClick={() => onCopyFormat(item.id)}>
+              <Button key={item.id} type="button" variant="outline" size="sm" aria-label={`${t("Copy")} ${t(item.label)}`} onClick={() => onCopyFormat(item.id)}>
                 {copiedFormat === item.id ? <Check /> : <Copy />}
-                {copiedFormat === item.id ? "Copied" : item.label}
+                {copiedFormat === item.id ? t("Copied") : t(item.label)}
               </Button>
             ))}
           </div>

@@ -4,8 +4,10 @@ import type { RepoMetadata } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCount, formatDate, formatSize, relativeTime } from "@/lib/utils";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licenseFile?: string }) {
+  const { text: translate } = useLanguage();
   const updated = repo.pushedAt ?? repo.updatedAt;
   const licenseName = repo.license
     ? repo.license.spdxId && repo.license.spdxId !== "NOASSERTION" ? repo.license.spdxId : repo.license.name
@@ -32,13 +34,13 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
             <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all hover:underline">
               {repo.name}
             </a>
-            {repo.language && <Badge>Language: {repo.language}</Badge>}
-            <Badge variant="muted">Size: {formatSize(repo.sizeKb)}</Badge>
-            <Badge variant="outline"><GitBranch className="size-3" />Branch: {repo.defaultBranch}</Badge>
-            <Badge variant="muted"><CalendarDays className="size-3" />Created {relativeTime(repo.createdAt)}</Badge>
+            {repo.language && <Badge>{translate("Language: ")}{repo.language}</Badge>}
+            <Badge variant="muted">{translate("Size: ")}{formatSize(repo.sizeKb)}</Badge>
+            <Badge variant="outline"><GitBranch className="size-3" />{translate("Branch: ")}{repo.defaultBranch}</Badge>
+            <Badge variant="muted"><CalendarDays className="size-3" />{translate("Created ")}{relativeTime(repo.createdAt)}</Badge>
             {licenseName && (
               <Badge variant="outline">
-                License:{" "}
+                {translate("License")}:{" "}
                 {licenseFile ? (
                   <a
                     href={`${repo.htmlUrl}/blob/${repo.defaultBranch.split("/").map(encodeURIComponent).join("/")}/${licenseFile.split("/").map(encodeURIComponent).join("/")}`}
@@ -51,17 +53,17 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
                 ) : licenseName}
               </Badge>
             )}
-            {repo.archived && <Badge variant="warning"><Archive className="size-3" />Archived</Badge>}
-            {repo.isFork && <Badge variant="muted"><GitFork className="size-3" />Fork</Badge>}
+            {repo.archived && <Badge variant="warning"><Archive className="size-3" />{translate("Archived")}</Badge>}
+            {repo.isFork && <Badge variant="muted"><GitFork className="size-3" />{translate("Fork")}</Badge>}
           </h2>
           <p className={repo.description ? "mt-2 text-pretty text-muted-foreground" : "mt-2 italic text-muted-foreground/70"}>
-            {repo.description ?? "No description provided."}
+            {repo.description ?? translate("No description provided.")}
           </p>
           {repo.topics.length > 0 && (
-            <ul aria-label="Topics" className="mt-3 flex flex-wrap gap-1.5">
+            <ul aria-label={translate("Topics")} className="mt-3 flex flex-wrap gap-1.5">
               {repo.topics.map((t) => (
                 <li key={t}>
-                  <a href={`https://github.com/topics/${encodeURIComponent(t)}`} target="_blank" rel="noopener noreferrer" aria-label={`Browse GitHub topic ${t}`}>
+                  <a href={`https://github.com/topics/${encodeURIComponent(t)}`} target="_blank" rel="noopener noreferrer" aria-label={`${translate("Browse GitHub topic")} ${t}`}>
                     <Badge variant="outline" className="font-mono text-[11px] transition-colors hover:border-primary hover:text-primary">{t}</Badge>
                   </a>
                 </li>
@@ -76,7 +78,7 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
       <dl className="grid grid-cols-2 border-t sm:grid-cols-4">
         {stats.map((s, i) => (
           <div key={s.label} title={s.hint} className={`p-4 sm:px-6 ${i % 2 === 1 ? "border-l" : ""} ${i >= 2 ? "border-t sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
-            <dt className="flex items-center gap-1.5 text-xs text-muted-foreground"><s.icon className="size-3.5" />{s.label}</dt>
+            <dt className="flex items-center gap-1.5 text-xs text-muted-foreground"><s.icon className="size-3.5" />{translate(s.label)}</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums">{s.value}</dd>
           </div>
         ))}

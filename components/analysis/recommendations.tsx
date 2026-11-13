@@ -9,6 +9,7 @@ import { CopyButton } from "./copy-button";
 import { LicenseGoalPicker } from "./license-goal-picker";
 import { RecommendationDone } from "./recommendation-done";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/layout/language-provider";
 
 const PRIORITY = {
   high: { label: "High impact", variant: "danger" },
@@ -28,6 +29,7 @@ const OFFICIAL_DOCS: Partial<Record<Recommendation["checkId"], { label: string; 
 };
 
 export function RecommendationList({ recommendations, complete, repo }: { recommendations: Recommendation[]; complete: boolean; repo: RepoMetadata }) {
+  const { text: t } = useLanguage();
   const storageKey = `repolens-hidden-recommendations:${repo.fullName}`;
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [showHidden, setShowHidden] = useState(false);
@@ -56,35 +58,35 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recommendations</CardTitle>
-        <CardDescription>Based only on what this analysis found, ordered by impact.</CardDescription>
+        <CardTitle>{t("Recommendations")}</CardTitle>
+        <CardDescription>{t("Based only on what this analysis found, ordered by impact.")}</CardDescription>
       </CardHeader>
       <CardContent>
         {visibleRecommendations[0] && (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">Smallest next step</p>
-            <p className="mt-1 font-medium">{visibleRecommendations[0].howToImprove[0]}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("Smallest next step")}</p>
+            <p className="mt-1 font-medium">{t(visibleRecommendations[0].howToImprove[0])}</p>
             <a href={`#recommendation-${visibleRecommendations[0].checkId}`} className="mt-2 inline-block text-sm text-primary hover:underline">
-              See related recommendation: {visibleRecommendations[0].title}
+              {t("See related recommendation:")} {t(visibleRecommendations[0].title)}
             </a>
           </div>
         )}
         {hiddenRecommendations.length > 0 && (
           <div className="mb-4 rounded-lg border border-dashed p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm text-muted-foreground">{hiddenRecommendations.length} recommendation{hiddenRecommendations.length === 1 ? "" : "s"} hidden</p>
+              <p className="text-sm text-muted-foreground">{hiddenRecommendations.length} {t(hiddenRecommendations.length === 1 ? "recommendation hidden" : "recommendations hidden")}</p>
               <Button type="button" variant="ghost" size="sm" onClick={() => setShowHidden((current) => !current)}>
                 {showHidden ? <EyeOff /> : <Eye />}
-                {showHidden ? "Hide hidden items" : "Review hidden items"}
+                {showHidden ? t("Hide hidden items") : t("Review hidden items")}
               </Button>
             </div>
             {showHidden && (
               <ul className="mt-3 space-y-2">
                 {hiddenRecommendations.map((recommendation) => (
                   <li key={recommendation.checkId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                    <span>{recommendation.title}</span>
+                    <span>{t(recommendation.title)}</span>
                     <Button type="button" variant="outline" size="sm" onClick={() => updateHidden(hiddenIds.filter((id) => id !== recommendation.checkId))}>
-                      Restore
+                      {t("Restore")}
                     </Button>
                   </li>
                 ))}
@@ -95,20 +97,20 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
         {!complete && (
           <div className="mb-4 flex items-start gap-3 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
             <CircleHelp className="mt-0.5 size-4 shrink-0 text-warning" />
-            <p>Unverified checks get no recommendation, because RepoLens couldn&apos;t confirm whether they&apos;re missing. Check those items in the repository yourself.</p>
+            <p>{t("Unverified checks get no recommendation, because RepoLens couldn't confirm whether they're missing. Check those items in the repository yourself.")}</p>
           </div>
         )}
         {recommendations.length === 0 ? (
           complete ? (
             <div className="flex items-center gap-3 rounded-lg border border-dashed p-5 text-sm">
               <PartyPopper className="size-5 text-success" />
-              <p>Nothing to fix — this repository meets every readiness indicator RepoLens checks.</p>
+              <p>{t("Nothing to fix — this repository meets every readiness indicator RepoLens checks.")}</p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No improvements found among the checks that could be verified.</p>
+            <p className="text-sm text-muted-foreground">{t("No improvements found among the checks that could be verified.")}</p>
           )
         ) : visibleRecommendations.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">All recommendations are hidden. You can restore them above.</p>
+          <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">{t("All recommendations are hidden. You can restore them above.")}</p>
         ) : (
           <ol className="grid gap-4 md:grid-cols-2">
             {visibleRecommendations.map((r) => {
@@ -116,15 +118,15 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
               return (
               <li id={`recommendation-${r.checkId}`} key={r.checkId} className="scroll-mt-24 flex flex-col rounded-lg border p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold">{r.title}</h3>
+                  <h3 className="font-semibold">{t(r.title)}</h3>
                   <div className="flex gap-1.5">
-                    <Badge variant={PRIORITY[r.priority].variant}>{PRIORITY[r.priority].label}</Badge>
+                    <Badge variant={PRIORITY[r.priority].variant}>{t(PRIORITY[r.priority].label)}</Badge>
                     {r.potentialPoints > 0 && <Badge variant="default" className="font-mono">+{r.potentialPoints}</Badge>}
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => updateHidden([...hiddenIds, r.checkId])} aria-label={`Hide ${r.title}`}>
-                    <EyeOff /> Hide
+                  <Button type="button" variant="ghost" size="sm" onClick={() => updateHidden([...hiddenIds, r.checkId])} aria-label={`${t("Hide")} ${t(r.title)}`}>
+                    <EyeOff /> {t("Hide")}
                   </Button>
                   <RecommendationDone repoName={repo.fullName} recommendationId={r.checkId} title={r.title} />
                   <CopyButton value={r.howToImprove.map((step, index) => `${index + 1}. ${step}`).join("\n")} label="Copy steps" />
@@ -134,25 +136,25 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
                 </div>
                 <dl className="mt-3 space-y-3 text-sm">
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">What&apos;s missing</dt>
-                    <dd className="mt-0.5">{r.whatIsMissing}</dd>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("What's missing")}</dt>
+                    <dd className="mt-0.5">{t(r.whatIsMissing)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Why it matters</dt>
-                    <dd className="mt-0.5 text-muted-foreground">{r.whyItMatters}</dd>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("Why it matters")}</dt>
+                    <dd className="mt-0.5 text-muted-foreground">{t(r.whyItMatters)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">How to improve</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("How to improve")}</dt>
                     <dd>
                       <ul className="mt-1 list-disc space-y-1 pl-4 marker:text-primary">
-                        {r.howToImprove.map((step) => <li key={step}>{step}</li>)}
+                        {r.howToImprove.map((step) => <li key={step}>{t(step)}</li>)}
                       </ul>
                     </dd>
                   </div>
                 </dl>
                 {docs && (
                   <a href={docs.url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex w-fit items-center gap-1.5 text-sm text-primary hover:underline">
-                    GitHub docs: {docs.label}<ExternalLink aria-hidden="true" className="size-3.5" />
+                    {t("GitHub docs:")} {t(docs.label)}<ExternalLink aria-hidden="true" className="size-3.5" />
                   </a>
                 )}
                 {r.checkId === "license" && <LicenseGoalPicker />}

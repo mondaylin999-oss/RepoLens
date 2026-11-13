@@ -5,6 +5,7 @@ import type { CheckResult } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusIcon, STATUS_LABEL } from "./status-icon";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export function Checklist({
   checks,
@@ -19,19 +20,19 @@ export function Checklist({
   fileCount: number;
   treeStatus: "complete" | "truncated" | "unavailable";
 }) {
+  const { text: t } = useLanguage();
   const passed = checks.filter((c) => c.status === "pass").length;
-  const treeStatusLabel = treeStatus === "complete" ? "complete file list" : treeStatus === "truncated" ? "partial file list" : "file list unavailable";
+  const treeStatusLabel = t(treeStatus === "complete" ? "complete file list" : treeStatus === "truncated" ? "partial file list" : "file list unavailable");
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div>
-          <CardTitle>Analysis checklist</CardTitle>
+          <CardTitle>{t("Analysis checklist")}</CardTitle>
           <CardDescription>
-            {fileCount.toLocaleString()} files returned · {treeStatusLabel}. File-based checks use this list. Each item shows its evidence.
-            Test files are detected, but RepoLens does not run them.
+            {fileCount.toLocaleString()} {t("files returned")} · {treeStatusLabel}. {t("File-based checks use this list. Each item shows its evidence. Test files are detected, but RepoLens does not run them.")}
           </CardDescription>
         </div>
-        <Badge variant="muted" className="shrink-0 tabular-nums">{passed}/{checks.length} detected</Badge>
+        <Badge variant="muted" className="shrink-0 tabular-nums">{passed}/{checks.length} {t("detected")}</Badge>
       </CardHeader>
       <CardContent className="px-0 sm:px-0">
         <ul className="divide-y border-t">
@@ -40,17 +41,17 @@ export function Checklist({
               <StatusIcon status={c.status} className="mt-0.5" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                  <h3 className="font-medium">{c.label}</h3>
+                  <h3 className="font-medium">{t(c.label)}</h3>
                   <div className="flex items-center gap-2">
-                    <Badge aria-label={`${c.label}: ${STATUS_LABEL[c.status]}`} variant={c.status === "pass" ? "success" : c.status === "fail" ? "danger" : "warning"}>{STATUS_LABEL[c.status]}</Badge>
+                    <Badge aria-label={`${t(c.label)}: ${t(STATUS_LABEL[c.status])}`} variant={c.status === "pass" ? "success" : c.status === "fail" ? "danger" : "warning"}>{t(STATUS_LABEL[c.status])}</Badge>
                     <span className="w-14 text-right font-mono text-xs tabular-nums text-muted-foreground">
                       {c.status === "unknown" ? "?" : `+${c.points}`}/{c.maxPoints}
                     </span>
                   </div>
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{c.evidence}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t(c.evidence)}</p>
                 {c.matches.length > 0 && (
-                  <ul className="mt-2 flex min-w-0 flex-wrap gap-1.5" aria-label={`${c.label} evidence`}>
+                  <ul className="mt-2 flex min-w-0 flex-wrap gap-1.5" aria-label={`${t(c.label)} ${t("evidence")}`}>
                     {c.matches.map((m) => (
                       <li key={m} className="min-w-0 max-w-full truncate rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground" title={m}>
                         {isFileEvidence(c.id, m) ? (
@@ -87,6 +88,7 @@ function FileLink({ repoUrl, defaultBranch, path }: { repoUrl: string; defaultBr
 }
 
 function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; repoUrl: string; defaultBranch: string }) {
+  const { text: t } = useLanguage();
   const [files, setFiles] = useState<string[] | null>(null);
   const [complete, setComplete] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -118,13 +120,13 @@ function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; 
   return (
     <div className="mt-2">
       <button type="button" onClick={toggleFiles} disabled={loading} aria-expanded={expanded} aria-busy={loading} className="text-xs font-medium text-primary hover:underline disabled:opacity-60">
-        {loading ? "Loading files…" : expanded ? "Hide full file list" : "Show all matching files"}
+        {loading ? t("Loading files…") : expanded ? t("Hide full file list") : t("Show all matching files")}
       </button>
       {error && <p role="alert" className="mt-1 text-xs text-danger">{error}</p>}
       {expanded && files && (
         <div className="mt-2">
-          <p className="text-xs text-muted-foreground">{files.length.toLocaleString()} matching files{complete ? "" : " · partial list from GitHub"}</p>
-          <ul className="mt-1 max-h-56 space-y-1 overflow-auto rounded-lg border bg-background p-2" aria-label={`All matching ${check.label} files`}>
+          <p className="text-xs text-muted-foreground">{files.length.toLocaleString()} {t("matching files")}{complete ? "" : ` · ${t("partial list from GitHub")}`}</p>
+          <ul className="mt-1 max-h-56 space-y-1 overflow-auto rounded-lg border bg-background p-2" aria-label={`${t("All matching")} ${t(check.label)} ${t("files")}`}>
             {files.map((file) => (
               <li key={file} className="truncate font-mono text-xs" title={file}>
                 <FileLink repoUrl={repoUrl} defaultBranch={defaultBranch} path={file} />
