@@ -157,7 +157,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
         />
       </div>
       <RecommendationList recommendations={data.recommendations} complete={data.score.complete} repo={data.repo} />
-      <DescriptionGenerator description={data.description} />
+      <DescriptionGenerator description={data.description} repo={data.repo} />
       <p className="text-xs text-muted-foreground">
         <Info className="mr-1.5 inline size-3.5 align-[-2px]" />
         Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}

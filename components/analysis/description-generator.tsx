@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { RepoMetadata } from "@/lib/types";
+import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
 
-type Format = "portfolio" | "linkedin";
+type Format = "short" | "portfolio" | "linkedin";
 type Audience = "recruiters" | "collaborators" | "clients";
 type TextKey = `${Audience}-${Format}`;
 const AUDIENCE_LABELS: Record<Audience, string> = {
@@ -22,21 +24,27 @@ const AUDIENCES: { id: Audience; label: string }[] = [
   { id: "clients", label: "Clients" },
 ];
 const FORMATS: { id: Format; label: string }[] = [
+  { id: "short", label: "One sentence" },
   { id: "portfolio", label: "Portfolio entry" },
   { id: "linkedin", label: "LinkedIn project" },
 ];
 
-export function DescriptionGenerator({ description }: { description: PortfolioDescription }) {
+export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
   const [format, setFormat] = useState<Format>("portfolio");
   const [audience, setAudience] = useState<Audience>("recruiters");
+  const generated: Record<Format, string> = {
+    short: `${repo.name}: ${cleanDescription(repo.description) ?? PLACEHOLDERS.overview}`,
+    portfolio: description.portfolio,
+    linkedin: description.linkedin,
+  };
   const [texts, setTexts] = useState<Record<TextKey, string>>(() => Object.fromEntries(
-    AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${description[item.id]}`])),
+    AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${generated[item.id]}`])),
   ) as Record<TextKey, string>);
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
   const textKey: TextKey = `${audience}-${format}`;
   const text = texts[textKey];
-  const originalText = `${AUDIENCE_LABELS[audience]}\n\n${description[format]}`;
+  const originalText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
   const edited = text !== originalText;
 
   async function onCopy() {
