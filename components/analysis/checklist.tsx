@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { StatusIcon, STATUS_LABEL } from "./status-icon";
 
-export function Checklist({ checks }: { checks: CheckResult[] }) {
+export function Checklist({ checks, repoUrl, defaultBranch }: { checks: CheckResult[]; repoUrl: string; defaultBranch: string }) {
   const passed = checks.filter((c) => c.status === "pass").length;
   return (
     <Card>
@@ -36,7 +36,16 @@ export function Checklist({ checks }: { checks: CheckResult[] }) {
                   <ul className="mt-2 flex min-w-0 flex-wrap gap-1.5" aria-label={`${c.label} evidence`}>
                     {c.matches.map((m) => (
                       <li key={m} className="min-w-0 max-w-full truncate rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground" title={m}>
-                        {m}
+                        {isFileEvidence(c.id, m) ? (
+                          <a
+                            href={`${repoUrl}/blob/${defaultBranch.split("/").map(encodeURIComponent).join("/")}/${m.split("/").map(encodeURIComponent).join("/")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-primary hover:underline"
+                          >
+                            {m}
+                          </a>
+                        ) : m}
                       </li>
                     ))}
                   </ul>
@@ -48,4 +57,9 @@ export function Checklist({ checks }: { checks: CheckResult[] }) {
       </CardContent>
     </Card>
   );
+}
+
+function isFileEvidence(checkId: CheckResult["id"], match: string): boolean {
+  if (checkId === "license") return /^(licen[sc]e|copying|unlicense)([-._][A-Za-z0-9.+-]*)?$/i.test(match);
+  return checkId === "readme" || checkId === "gitignore" || checkId === "tests" || checkId === "ci";
 }

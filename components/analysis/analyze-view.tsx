@@ -146,7 +146,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
       <RepoOverview repo={data.repo} />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
         <ScoreCard score={data.score} checks={data.checks} />
-        <Checklist checks={data.checks} />
+        <Checklist checks={data.checks} repoUrl={data.repo.htmlUrl} defaultBranch={data.repo.defaultBranch} />
       </div>
       <RecommendationList recommendations={data.recommendations} complete={data.score.complete} />
       <DescriptionGenerator description={data.description} />
