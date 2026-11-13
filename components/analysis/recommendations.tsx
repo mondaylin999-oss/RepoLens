@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "./copy-button";
 import { LicenseGoalPicker } from "./license-goal-picker";
+import { RecommendationDone } from "./recommendation-done";
 
 const PRIORITY = {
   high: { label: "High impact", variant: "danger" },
@@ -46,6 +47,7 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <RecommendationDone repoName={repo.fullName} recommendationId={r.checkId} title={r.title} />
                   <CopyButton value={r.howToImprove.map((step, index) => `${index + 1}. ${step}`).join("\n")} label="Copy steps" />
                   {r.checkId === "readme" && (
                     <CopyButton value={readmeOutline(repo)} label="Copy README outline" />
