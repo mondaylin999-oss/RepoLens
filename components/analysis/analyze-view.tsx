@@ -296,6 +296,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
         </label>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
           <input aria-label="Shareable report URL" readOnly value={shareUrl} className="h-9 min-w-0 flex-1 rounded-lg border bg-background px-3 font-mono text-xs text-muted-foreground" />
+          <CopyButton value={shareUrl} label="Copy link" />
           <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-3 text-sm font-medium hover:bg-muted">Preview share link</a>
         </div>
       </div>
