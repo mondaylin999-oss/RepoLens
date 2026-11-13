@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { readSavedRepositories, type SavedRepository } from "@/lib/analysis/local-history";
 
 export function SavedRepositories() {
@@ -22,15 +23,18 @@ export function SavedRepositories() {
         <ul className="mt-4 flex flex-wrap gap-2">
           {repositories.map((item) => (
             <li key={item.url} className="min-w-56 rounded-lg border bg-card p-3">
-              <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
+              <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="text-sm font-medium text-primary hover:underline">
                 {item.repository}
-              </a>
+              </Link>
               <p className="mt-1 text-xs text-muted-foreground">
                 {item.lastRefreshedAt
                   ? `Last refreshed ${new Date(item.lastRefreshedAt).toLocaleString()}`
                   : `Saved ${new Date(item.savedAt).toLocaleDateString()}`}
               </p>
               <ScoreHistoryChart repository={item.repository} snapshots={item.scoreHistory ?? []} />
+              <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="mt-2 inline-flex text-xs font-medium text-primary hover:underline">
+                Analyze again →
+              </Link>
             </li>
           ))}
         </ul>
