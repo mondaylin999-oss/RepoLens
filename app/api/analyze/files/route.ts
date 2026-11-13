@@ -3,6 +3,7 @@ import { parseGitHubRepoUrl } from "@/lib/github/parser";
 import { GitHubClient } from "@/lib/github/client";
 import { getFileMatches } from "@/lib/analysis/checks";
 import type { CheckId } from "@/lib/types";
+import { readGitHubToken } from "@/lib/github/request-token";
 
 const FILE_CHECKS = new Set<CheckId>(["readme", "license", "gitignore", "tests", "ci"]);
 
@@ -15,14 +16,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Choose a file-based check." }, { status: 400 });
   }
 
+  const requestToken = readGitHubToken(request);
+  if (requestToken.invalid) {
+    return NextResponse.json({ error: "That GitHub token format doesn't look right. Check it or clear it to continue without a token." }, { status: 400, headers: { "Cache-Control": "no-store" } });
+  }
+
   try {
-    const client = new GitHubClient({ token: process.env.GITHUB_TOKEN || undefined });
+    const client = new GitHubClient({ token: requestToken.token ?? (process.env.GITHUB_TOKEN || undefined) });
     const { owner, repo } = parsed.value;
     const metadata = await client.getRepository(owner, repo);
     const tree = await client.getTree(owner, repo, metadata);
     return NextResponse.json(
       { files: getFileMatches(checkId, { repo: metadata, tree }), complete: tree.status === "complete" },
-      { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } },
+      { headers: { "Cache-Control": requestToken.token ? "no-store" : "public, s-maxage=300, stale-while-revalidate=600" } },
     );
   } catch {
     return NextResponse.json({ error: "The full file list could not be loaded. Please try again." }, { status: 502 });

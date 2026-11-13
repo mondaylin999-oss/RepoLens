@@ -18,6 +18,8 @@ import { SaveRepositoryButton } from "./save-repository-button";
 import { CopyButton } from "./copy-button";
 import { ShareCardButton } from "./share-card-button";
 import { useLanguage } from "@/components/layout/language-provider";
+import { useGitHubToken } from "@/components/layout/github-token-provider";
+import { githubTokenHeader } from "@/lib/github/request-token";
 
 type State =
   | { status: "idle" }
@@ -27,6 +29,7 @@ type State =
 
 export function AnalyzeView({ url, checklistOnly = false }: { url: string; checklistOnly?: boolean }) {
   const { text: t } = useLanguage();
+  const { token } = useGitHubToken();
   const [state, setState] = useState<State>(url ? { status: "loading" } : { status: "idle" });
   const [loadingMessage, setLoadingMessage] = useState("Connecting to GitHub…");
   const [attempt, setAttempt] = useState(0);
@@ -37,7 +40,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
     setLoadingMessage("Connecting to GitHub…");
     const detailsTimer = window.setTimeout(() => setLoadingMessage("Reading repository details…"), 900);
     const filesTimer = window.setTimeout(() => setLoadingMessage("Checking repository files and preparing your results…"), 2400);
-    fetch(`/api/analyze?url=${encodeURIComponent(url)}`, { signal: controller.signal })
+    fetch(`/api/analyze?url=${encodeURIComponent(url)}`, { signal: controller.signal, headers: githubTokenHeader(token) })
       .then(async (res) => {
         let body: AnalyzeResponse;
         try {
@@ -64,7 +67,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
       window.clearTimeout(detailsTimer);
       window.clearTimeout(filesTimer);
     };
-  }, [url, attempt]);
+  }, [url, attempt, token]);
 
   useEffect(() => {
     if (state.status !== "success") return;

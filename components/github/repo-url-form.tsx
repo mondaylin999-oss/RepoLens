@@ -2,13 +2,14 @@
 
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2, X } from "lucide-react";
+import { ArrowRight, ChevronDown, KeyRound, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GitHubIcon } from "@/components/layout/github-icon";
 import { useLanguage } from "@/components/layout/language-provider";
 import { parseGitHubRepoUrl } from "@/lib/github/parser";
 import { cn } from "@/lib/utils";
+import { useGitHubToken } from "@/components/layout/github-token-provider";
 
 interface Props {
   defaultValue?: string;
@@ -26,11 +27,14 @@ const EXAMPLE_REPOSITORIES = [
 
 export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, busy, className }: Props) {
   const { text: t } = useLanguage();
+  const { token, setToken } = useGitHubToken();
   const router = useRouter();
   const id = useId();
+  const tokenId = useId();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
   const [selectedExample, setSelectedExample] = useState<(typeof EXAMPLE_REPOSITORIES)[number] | null>(null);
+  const [tokenDraft, setTokenDraft] = useState(token);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,6 +123,32 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
             </Button>
           ))}
         </div>
+        <details className="group rounded-lg border bg-card/70 px-3 py-2.5">
+          <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium text-foreground">
+            <KeyRound aria-hidden="true" className="size-3.5 text-muted-foreground" />
+            {t("Optional GitHub token")}
+            <ChevronDown aria-hidden="true" className="ml-auto size-3.5 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <p id={`${tokenId}-help`} className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("A token is sent to RepoLens over HTTPS and forwarded to GitHub only for public repository API reads. It stays in this page's memory, is not saved by RepoLens, and should not have write access.")}</p>
+          <label htmlFor={tokenId} className="mt-3 block text-xs font-medium">{t("Personal access token")}</label>
+          <Input
+            id={tokenId}
+            type="password"
+            autoComplete="off"
+            spellCheck={false}
+            value={tokenDraft}
+            onChange={(event) => setTokenDraft(event.target.value)}
+            onKeyDown={(event) => { if (event.key === "Enter") event.preventDefault(); }}
+            aria-describedby={`${tokenId}-help`}
+            placeholder={t("Paste a GitHub token")}
+            className="mt-1 font-mono"
+          />
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Button type="button" size="sm" disabled={!tokenDraft.trim() || tokenDraft.trim() === token} onClick={() => setToken(tokenDraft.trim())}>{t("Use for this session")}</Button>
+            {token && <Button type="button" size="sm" variant="outline" onClick={() => { setToken(""); setTokenDraft(""); }}>{t("Clear token")}</Button>}
+            {token && <span role="status" className="text-xs text-muted-foreground">{t("Token active for this session")}</span>}
+          </div>
+        </details>
         {selectedExample && (
           <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
             {selectedExample.name} {t("is a public")} {t(selectedExample.type.toLowerCase())}. {t("Analyze it to see a readiness score and recommendations based on its public GitHub details and files. RepoLens won't change it.")}

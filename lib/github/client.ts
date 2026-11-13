@@ -19,6 +19,7 @@ export interface GitHubClientOptions {
 }
 
 interface RawRepo {
+  private: boolean;
   name: string;
   full_name: string;
   owner: { login: string; avatar_url: string; html_url: string };
@@ -59,6 +60,7 @@ export class GitHubClient {
 
   async getRepository(owner: string, repo: string): Promise<RepoMetadata> {
     const raw = await this.request<RawRepo>(`/repos/${enc(owner)}/${enc(repo)}`, "repository");
+    if (raw.private) throw new GitHubError("INACCESSIBLE", "RepoLens only analyzes public repositories.", 403);
     return mapRepo(raw);
   }
 
@@ -119,7 +121,7 @@ export class GitHubClient {
       res = await this.fetchImpl(`${API_ORIGIN}${path}`, {
         headers,
         signal: controller.signal,
-        next: { revalidate: CACHE_SECONDS },
+        ...(this.token ? { cache: "no-store" } : { next: { revalidate: CACHE_SECONDS } }),
       } as RequestInit);
     } catch (err) {
       if (isAbort(err)) {
@@ -131,13 +133,13 @@ export class GitHubClient {
     }
 
     if (res.ok) return (await res.json()) as T;
-    throw await toError(res, what);
+    throw await toError(res, what, Boolean(this.token));
   }
 }
 
 const emptyMessage = "This repository is empty — push some code to it, then analyze it again.";
 
-async function toError(res: Response, what: string): Promise<GitHubError> {
+async function toError(res: Response, what: string, authenticated: boolean): Promise<GitHubError> {
   const remaining = res.headers.get("x-ratelimit-remaining");
   const reset = res.headers.get("x-ratelimit-reset");
   const retryAfter = res.headers.get("retry-after");
@@ -168,6 +170,9 @@ async function toError(res: Response, what: string): Promise<GitHubError> {
         : `GitHub couldn't find the repository's ${what}.`,
       404,
     );
+  }
+  if (res.status === 401 && authenticated) {
+    return new GitHubError("INACCESSIBLE", "GitHub rejected the token. Check it or clear it and retry without one.", 403);
   }
   if (res.status === 401 || res.status === 403 || res.status === 451) {
     return new GitHubError("INACCESSIBLE", "This repository isn't publicly accessible.", 403);

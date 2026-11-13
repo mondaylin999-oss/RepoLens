@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { LanguageProvider } from "@/components/layout/language-provider";
+import { GitHubTokenProvider } from "@/components/layout/github-token-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="flex min-h-dvh flex-col">
         <ThemeProvider>
+          <GitHubTokenProvider>
           <LanguageProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2 focus:shadow">
             Skip to content
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main" className="flex-1">{children}</main>
           <SiteFooter />
           </LanguageProvider>
+          </GitHubTokenProvider>
         </ThemeProvider>
       </body>
     </html>

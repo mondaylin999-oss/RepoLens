@@ -4,6 +4,7 @@ import { GitHubClient } from "@/lib/github/client";
 import { GitHubError, HTTP_STATUS } from "@/lib/github/errors";
 import { analyzeRepository } from "@/lib/analysis/analyze";
 import type { AnalyzeResponse, ApiError } from "@/lib/types";
+import { readGitHubToken } from "@/lib/github/request-token";
 
 export async function GET(request: NextRequest) {
   const input = request.nextUrl.searchParams.get("url") ?? "";
@@ -11,14 +12,18 @@ export async function GET(request: NextRequest) {
   if (!parsed.ok) return errorResponse({ code: "INVALID_URL", message: parsed.error });
 
   const { owner, repo } = parsed.value;
-  const client = new GitHubClient({ token: process.env.GITHUB_TOKEN || undefined });
+  const requestToken = readGitHubToken(request);
+  if (requestToken.invalid) {
+    return errorResponse({ code: "INACCESSIBLE", message: "That GitHub token format doesn't look right. Check it or clear it to continue without a token." });
+  }
+  const client = new GitHubClient({ token: requestToken.token ?? (process.env.GITHUB_TOKEN || undefined) });
 
   try {
     const meta = await client.getRepository(owner, repo);
     const tree = await client.getTree(owner, repo, meta);
     const body: AnalyzeResponse = { ok: true, data: analyzeRepository(meta, tree) };
     return NextResponse.json(body, {
-      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" },
+      headers: { "Cache-Control": requestToken.token ? "no-store" : "public, s-maxage=300, stale-while-revalidate=600" },
     });
   } catch (err) {
     if (err instanceof GitHubError) {

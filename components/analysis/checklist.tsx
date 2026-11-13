@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { StatusIcon, STATUS_LABEL } from "./status-icon";
 import { useLanguage } from "@/components/layout/language-provider";
+import { useGitHubToken } from "@/components/layout/github-token-provider";
+import { githubTokenHeader } from "@/lib/github/request-token";
 
 export function Checklist({
   checks,
@@ -89,6 +91,7 @@ function FileLink({ repoUrl, defaultBranch, path }: { repoUrl: string; defaultBr
 
 function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; repoUrl: string; defaultBranch: string }) {
   const { text: t } = useLanguage();
+  const { token } = useGitHubToken();
   const [files, setFiles] = useState<string[] | null>(null);
   const [complete, setComplete] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -104,7 +107,7 @@ function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; 
     setError(null);
     try {
       const params = new URLSearchParams({ url: repoUrl, check: check.id });
-      const response = await fetch(`/api/analyze/files?${params.toString()}`);
+      const response = await fetch(`/api/analyze/files?${params.toString()}`, { headers: githubTokenHeader(token) });
       const body = (await response.json()) as { files?: string[]; complete?: boolean; error?: string };
       if (!response.ok || !body.files) throw new Error(body.error || "The full file list could not be loaded.");
       setFiles(body.files);
