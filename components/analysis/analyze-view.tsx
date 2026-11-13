@@ -24,7 +24,7 @@ type State =
   | { status: "success"; data: AnalysisResult }
   | { status: "error"; error: ApiError };
 
-export function AnalyzeView({ url }: { url: string }) {
+export function AnalyzeView({ url, checklistOnly = false }: { url: string; checklistOnly?: boolean }) {
   const [state, setState] = useState<State>(url ? { status: "loading" } : { status: "idle" });
   const [loadingMessage, setLoadingMessage] = useState("Connecting to GitHub…");
   const [attempt, setAttempt] = useState(0);
@@ -145,13 +145,16 @@ export function AnalyzeView({ url }: { url: string }) {
         {state.status === "idle" && <EmptyState />}
         {state.status === "loading" && <AnalysisSkeleton message={loadingMessage} />}
         {state.status === "error" && <ErrorState error={state.error} onRetry={retry} />}
-        {state.status === "success" && <Results data={state.data} submittedUrl={url} />}
+        {state.status === "success" && <Results data={state.data} submittedUrl={url} checklistOnly={checklistOnly} />}
       </div>
     </div>
   );
 }
 
-function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: string }) {
+function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; submittedUrl: string; checklistOnly: boolean }) {
+  const [includeScoreInShare, setIncludeScoreInShare] = useState(true);
+  const [shareOrigin, setShareOrigin] = useState("");
+  useEffect(() => setShareOrigin(window.location.origin), []);
   const { tree } = data;
   const licenseCheck = data.checks.find((check) => check.id === "license");
   const licenseFile = licenseCheck?.matches.find((match) => /^(licen[sc]e|copying|unlicense)([-._][A-Za-z0-9.+-]*)?$/i.test(match));
@@ -243,6 +246,21 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
       ? data.recommendations.flatMap((recommendation) => [`- ${recommendation.title}`, ...recommendation.howToImprove.map((step) => `  ${step}`)])
       : ["- No improvement steps were suggested for this analysis."]),
   ].join("\n");
+  const shareParams = new URLSearchParams({ url: data.repo.htmlUrl });
+  if (!includeScoreInShare) shareParams.set("view", "checklist");
+  const shareUrl = `${shareOrigin}/analyze?${shareParams.toString()}`;
+
+  if (checklistOnly) {
+    return (
+      <div className="print-report animate-fade-up space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold">Checklist-only report</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on GitHub</a></p>
+        </div>
+        <Checklist checks={data.checks} repoUrl={data.repo.htmlUrl} defaultBranch={data.repo.defaultBranch} fileCount={data.tree.fileCount} treeStatus={data.tree.status} />
+      </div>
+    );
+  }
 
   return (
     <div className="print-report animate-fade-up space-y-6">
@@ -268,6 +286,16 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
             <Link href="/analyze">Analyze another repository</Link>
           </Button>
+        </div>
+      </div>
+      <div className="no-print rounded-xl border bg-card p-4">
+        <label className="inline-flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" checked={includeScoreInShare} onChange={(event) => setIncludeScoreInShare(event.target.checked)} className="size-4 accent-primary" />
+          Include the readiness score in the shared report
+        </label>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <input aria-label="Shareable report URL" readOnly value={shareUrl} className="h-9 min-w-0 flex-1 rounded-lg border bg-background px-3 font-mono text-xs text-muted-foreground" />
+          <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-3 text-sm font-medium hover:bg-muted">Preview share link</a>
         </div>
       </div>
       <dl aria-label="Analysis summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
