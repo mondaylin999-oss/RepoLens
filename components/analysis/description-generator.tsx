@@ -13,6 +13,14 @@ import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
 type Format = "short" | "portfolio" | "linkedin" | "caseStudy" | "website" | "resume";
 type Audience = "recruiters" | "collaborators" | "clients";
 type TextKey = `${Audience}-${Format}`;
+type Fact = "project" | "overview" | "technology" | "demo" | "source";
+const FACTS: { id: Fact; label: string }[] = [
+  { id: "project", label: "Project name" },
+  { id: "overview", label: "Overview" },
+  { id: "technology", label: "Language and topics" },
+  { id: "demo", label: "Live demo link" },
+  { id: "source", label: "Source repository link" },
+];
 const AUDIENCE_LABELS: Record<Audience, string> = {
   recruiters: "Portfolio summary for recruiters",
   collaborators: "Project overview for collaborators",
@@ -35,6 +43,7 @@ const FORMATS: { id: Format; label: string }[] = [
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
   const [format, setFormat] = useState<Format>("portfolio");
   const [audience, setAudience] = useState<Audience>("recruiters");
+  const [includedFacts, setIncludedFacts] = useState<Record<Fact, boolean>>({ project: true, overview: true, technology: true, demo: true, source: true });
   const generated: Record<Format, string> = {
     short: `${repo.name}: ${cleanDescription(repo.description) ?? PLACEHOLDERS.overview}`,
     portfolio: description.portfolio,
@@ -49,9 +58,10 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
   const textKey: TextKey = `${audience}-${format}`;
-  const text = texts[textKey];
+  const text = filterFacts(texts[textKey], repo, includedFacts);
   const originalText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
-  const edited = text !== originalText;
+  const allFactsIncluded = FACTS.every((fact) => includedFacts[fact.id]);
+  const edited = texts[textKey] !== originalText || !allFactsIncluded;
 
   async function onCopy() {
     try {
@@ -98,6 +108,17 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
         </div>
       </CardHeader>
       <CardContent>
+        <fieldset className="mb-4 rounded-lg border p-3">
+          <legend className="px-1 text-xs font-medium text-muted-foreground">Include verified facts</legend>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {FACTS.map((fact) => (
+              <label key={fact.id} className="inline-flex cursor-pointer items-center gap-2 text-xs">
+                <input type="checkbox" checked={includedFacts[fact.id]} onChange={(event) => setIncludedFacts((current) => ({ ...current, [fact.id]: event.target.checked }))} className="size-4 accent-primary" />
+                {fact.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         {description.placeholders.length > 0 && (
           <p className="mb-3 rounded-lg bg-warning-soft px-3 py-2 text-sm">
             Some details aren&apos;t available on GitHub, so they&apos;re marked with <code className="font-mono">[brackets]</code>. Replace them with your own words.
@@ -116,7 +137,10 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             {copy === "copied" ? <Check /> : <Copy />}
             {copy === "copied" ? "Copied!" : "Copy Description"}
           </Button>
-          <Button variant="outline" disabled={!edited} onClick={() => setTexts((t) => ({ ...t, [textKey]: originalText }))}>
+          <Button variant="outline" disabled={!edited} onClick={() => {
+            setTexts((t) => ({ ...t, [textKey]: originalText }));
+            setIncludedFacts({ project: true, overview: true, technology: true, demo: true, source: true });
+          }}>
             <RotateCcw /> Reset
           </Button>
           <span role="status" aria-live="polite" className="text-sm text-muted-foreground">
@@ -171,4 +195,17 @@ function resumeSummary(repo: RepoMetadata): string {
     repo.homepage ? `Live demo: ${repo.homepage}` : null,
   ].filter(Boolean);
   return [`${repo.name} | ${repo.language ?? "Project"}`, ...facts.map((fact) => `• ${fact}`), `• Source: ${repo.htmlUrl}`].join("\n");
+}
+
+function filterFacts(text: string, repo: RepoMetadata, included: Record<Fact, boolean>): string {
+  const overview = cleanDescription(repo.description);
+  return text.split("\n").filter((line) => {
+    const trimmed = line.trim();
+    if (!included.project && (trimmed === repo.name || trimmed === `# ${repo.name}` || trimmed.startsWith(`Project: ${repo.name}`) || trimmed.startsWith(`${repo.name} |`))) return false;
+    if (!included.overview && (trimmed.startsWith("Overview:") || trimmed === "## Overview" || (overview && trimmed.includes(overview)))) return false;
+    if (!included.technology && /^(Primary language:|Technology:|Technologies and topics:|Topics:|Written primarily in|Repository metadata lists:)/.test(trimmed)) return false;
+    if (!included.demo && repo.homepage && trimmed.includes(repo.homepage)) return false;
+    if (!included.source && trimmed.includes(repo.htmlUrl)) return false;
+    return true;
+  }).join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
