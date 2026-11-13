@@ -66,7 +66,13 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
           {checks.map((ch) => (
             <li key={ch.id} className="text-sm">
               <div className="mb-1 flex justify-between gap-2">
-                <span className="text-muted-foreground">{ch.label}</span>
+                <a
+                  href={`#check-${ch.id}`}
+                  aria-label={`Jump to ${ch.label} check`}
+                  className="rounded-sm text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {ch.label}
+                </a>
                 <span className="font-mono text-xs tabular-nums">
                   {ch.status === "unknown" ? "?" : ch.points}/{ch.maxPoints}
                 </span>

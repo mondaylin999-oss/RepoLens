@@ -17,7 +17,7 @@ export function Checklist({ checks }: { checks: CheckResult[] }) {
       <CardContent className="px-0 sm:px-0">
         <ul className="divide-y border-t">
           {checks.map((c) => (
-            <li key={c.id} className="flex gap-3 px-5 py-4 sm:px-6">
+            <li id={`check-${c.id}`} key={c.id} className="scroll-mt-24 flex gap-3 px-5 py-4 sm:px-6">
               <StatusIcon status={c.status} className="mt-0.5" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
