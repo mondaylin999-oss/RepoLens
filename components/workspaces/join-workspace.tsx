@@ -23,6 +23,7 @@ export function JoinWorkspace() {
         window.sessionStorage.setItem("repolens-workspace-invite", fromLink);
         window.history.replaceState(null, "", window.location.pathname);
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Read the invite fragment and session storage only in the browser after hydration.
       setToken(fromLink ?? window.sessionStorage.getItem("repolens-workspace-invite") ?? "");
     } catch {
       setToken("");

@@ -50,6 +50,7 @@ export function AccountSavedRepositories() {
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the browser-only preference after hydration to keep server and client markup aligned.
       setEnabled(window.localStorage.getItem(ACCOUNT_SAVED_REPOSITORIES_SYNC_KEY) === "true");
     } catch {
       // Sync can still be enabled for this visit.

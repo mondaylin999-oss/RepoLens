@@ -67,6 +67,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     try {
       const saved = window.localStorage.getItem(DESCRIPTION_LANGUAGE_STORAGE_KEY);
       if (saved === "en" || saved === "my") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the user's browser preference after hydration.
         setDescriptionLanguage(saved);
         setHasSavedLanguagePreference(true);
         return;

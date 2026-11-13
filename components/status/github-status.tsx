@@ -52,7 +52,7 @@ export function GitHubStatus() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Start the async fetch on mount; it updates UI only after the external request resolves.
     void loadStatus(controller.signal);
     const interval = window.setInterval(() => void loadStatus(), 60_000);
     return () => {
@@ -75,7 +75,7 @@ export function GitHubStatus() {
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">{t("GitHub service status")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("Check whether GitHub is reporting an API incident before retrying a repository analysis.")}</p>
         </div>
-        <Button variant="outline" onClick={() => setRefresh((value) => value + 1)} disabled={loading}>
+        <Button variant="outline" onClick={() => { setLoading(true); setRefresh((value) => value + 1); }} disabled={loading}>
           <RefreshCw className={loading ? "animate-spin" : ""} /> {t("Refresh status")}
         </Button>
       </div>

@@ -14,6 +14,7 @@ export function RecentAnalyses() {
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Load opt-in browser history after hydration to keep server markup deterministic.
       setEnabled(window.localStorage.getItem(HISTORY_ENABLED_KEY) === "true");
       setHistory(readAnalysisHistory());
     } catch {

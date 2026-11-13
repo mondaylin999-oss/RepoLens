@@ -11,6 +11,7 @@ export function SaveRepositoryButton({ repository, url, language, snapshot }: { 
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- The initial saved state comes from browser storage, which is unavailable during server rendering.
     setSaved(readSavedRepositories().some((item) => item.url === url));
   }, [url]);
 

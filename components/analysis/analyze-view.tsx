@@ -38,6 +38,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
   useEffect(() => {
     if (!url) return;
     const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset progress text when a new analysis request begins.
     setLoadingMessage("Connecting to GitHub…");
     const detailsTimer = window.setTimeout(() => setLoadingMessage("Reading repository details…"), 900);
     const filesTimer = window.setTimeout(() => setLoadingMessage("Checking repository files and preparing your results…"), 2400);
@@ -162,6 +163,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
   const { text: t, language } = useLanguage();
   const [includeScoreInShare, setIncludeScoreInShare] = useState(true);
   const [shareOrigin, setShareOrigin] = useState("");
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- The origin only exists in the browser; defer it until hydration to keep server markup deterministic.
   useEffect(() => setShareOrigin(window.location.origin), []);
   const { tree } = data;
   const licenseCheck = data.checks.find((check) => check.id === "license");
@@ -348,7 +350,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
           </div>
         </div>
       )}
-      <RepoOverview repo={data.repo} licenseFile={licenseFile} />
+      <RepoOverview repo={data.repo} licenseFile={licenseFile} asOf={Date.parse(data.analyzedAt)} />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
         <ScoreCard score={data.score} checks={data.checks} />
         <Checklist

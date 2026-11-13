@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCount, formatDate, formatSize, relativeTime } from "@/lib/utils";
 import { useLanguage } from "@/components/layout/language-provider";
 
-export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licenseFile?: string }) {
+export function RepoOverview({ repo, licenseFile, asOf }: { repo: RepoMetadata; licenseFile?: string; asOf: number }) {
   const { text: translate, language } = useLanguage();
   const locale = language === "my" ? "my-MM" : "en";
   const updated = repo.pushedAt ?? repo.updatedAt;
@@ -17,7 +17,7 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
     { label: "Stars", value: formatCount(repo.stars), icon: Star },
     { label: "Forks", value: formatCount(repo.forks), icon: GitFork },
     { label: "Open issues", value: formatCount(repo.openIssues), icon: CircleDot, hint: "Includes pull requests" },
-    { label: "Last updated", value: relativeTime(updated, Date.now(), locale) || translate("Unknown"), icon: Clock, hint: formatDate(updated, locale) },
+    { label: "Last updated", value: relativeTime(updated, asOf, locale) || translate("Unknown"), icon: Clock, hint: formatDate(updated, locale) },
   ];
 
   return (
@@ -38,7 +38,7 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
             {repo.language && <Badge>{translate("Language: ")}{repo.language}</Badge>}
             <Badge variant="muted">{translate("Size: ")}{formatSize(repo.sizeKb)}</Badge>
             <Badge variant="outline"><GitBranch className="size-3" />{translate("Branch: ")}{repo.defaultBranch}</Badge>
-            <Badge variant="muted"><CalendarDays className="size-3" />{translate("Created ")}{relativeTime(repo.createdAt, Date.now(), locale)}</Badge>
+            <Badge variant="muted"><CalendarDays className="size-3" />{translate("Created ")}{relativeTime(repo.createdAt, asOf, locale)}</Badge>
             {licenseName && (
               <Badge variant="outline">
                 {translate("License")}:{" "}

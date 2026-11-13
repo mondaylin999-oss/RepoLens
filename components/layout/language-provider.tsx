@@ -518,6 +518,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the browser-only language preference after hydration.
       if (saved === "en" || saved === "my") setLanguage(saved);
     } catch {
       // English remains available when browser storage is disabled.

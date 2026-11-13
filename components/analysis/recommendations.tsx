@@ -37,6 +37,7 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "[]") as string[];
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore hidden recommendations from browser storage after hydration.
       setHiddenIds(saved.filter((id) => recommendations.some((recommendation) => recommendation.checkId === id)));
     } catch {
       setHiddenIds([]);

@@ -14,6 +14,7 @@ export function FirstVisitGuide() {
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Read the browser-only dismissal preference after hydration.
       setVisible(window.localStorage.getItem(STORAGE_KEY) !== "true");
     } catch {
       setVisible(true);

@@ -19,6 +19,7 @@ export function SavedRepositories() {
     const refresh = () => setRepositories(readSavedRepositories());
     refresh();
     window.addEventListener(SAVED_REPOSITORIES_CHANGE_EVENT, refresh);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reveal browser-only saved data after hydration.
     setReady(true);
     return () => window.removeEventListener(SAVED_REPOSITORIES_CHANGE_EVENT, refresh);
   }, []);

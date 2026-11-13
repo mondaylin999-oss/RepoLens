@@ -11,6 +11,7 @@ export function RecommendationDone({ repoName, recommendationId, title }: { repo
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "{}") as Record<string, boolean>;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore this browser's saved checklist state after hydration.
       setDone(saved[recommendationId] === true);
     } catch {
       setDone(false);
