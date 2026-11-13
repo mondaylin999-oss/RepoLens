@@ -256,6 +256,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
         <div>
           <h2 className="text-xl font-semibold">Checklist-only report</h2>
           <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on GitHub</a></p>
+          <p className="mt-1 text-xs text-muted-foreground">Based on public GitHub repository data checked {new Date(data.analyzedAt).toLocaleString()}.</p>
         </div>
         <Checklist checks={data.checks} repoUrl={data.repo.htmlUrl} defaultBranch={data.repo.defaultBranch} fileCount={data.tree.fileCount} treeStatus={data.tree.status} />
       </div>
@@ -334,7 +335,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       <DescriptionGenerator description={data.description} repo={data.repo} />
       <p className="text-xs text-muted-foreground">
         <Info className="mr-1.5 inline size-3.5 align-[-2px]" />
-        Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}
+        Based on public GitHub repository data. Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}
         {new Date(data.analyzedAt).toLocaleString()} · Results may be cached for up to 5 minutes.
       </p>
     </div>
