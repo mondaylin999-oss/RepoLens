@@ -74,6 +74,10 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
         </Button>
       </div>
       <div className="mt-3 space-y-2 text-left">
+        <p className="text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">What we check:</span> README, project description, license,
+          .gitignore, tests, CI, and live demo link. Each result includes its evidence.
+        </p>
         <p className="text-xs font-medium text-muted-foreground">Try an example repository</p>
         <div className="flex flex-wrap gap-2">
           {EXAMPLE_REPOSITORIES.map((example) => (
