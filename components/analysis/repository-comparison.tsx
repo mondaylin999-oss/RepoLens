@@ -19,10 +19,16 @@ export function RepositoryComparison() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const saved = readSavedRepositories();
-    setRepositories(saved);
-    setFirstUrl(saved[0]?.url ?? "");
-    setSecondUrl(saved[1]?.url ?? "");
+    const refresh = () => {
+      const saved = readSavedRepositories();
+      setRepositories(saved);
+      setFirstUrl(saved[0]?.url ?? "");
+      setSecondUrl(saved[1]?.url ?? "");
+      setPair(null);
+    };
+    refresh();
+    window.addEventListener("repolens-saved-repositories-change", refresh);
+    return () => window.removeEventListener("repolens-saved-repositories-change", refresh);
   }, []);
 
   async function compare() {

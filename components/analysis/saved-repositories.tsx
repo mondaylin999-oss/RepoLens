@@ -2,19 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { readSavedRepositories, type SavedRepository } from "@/lib/analysis/local-history";
+import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedRepository } from "@/lib/analysis/local-history";
 
 export function SavedRepositories() {
   const [ready, setReady] = useState(false);
   const [repositories, setRepositories] = useState<SavedRepository[]>([]);
   const [languageFilter, setLanguageFilter] = useState("all");
   const [scoreFilter, setScoreFilter] = useState("all");
+  const [removedMessage, setRemovedMessage] = useState("");
 
   useEffect(() => {
-    setRepositories(readSavedRepositories());
+    const refresh = () => setRepositories(readSavedRepositories());
+    refresh();
+    window.addEventListener("repolens-saved-repositories-change", refresh);
     setReady(true);
+    return () => window.removeEventListener("repolens-saved-repositories-change", refresh);
   }, []);
 
   if (!ready || repositories.length === 0) return null;
@@ -62,6 +66,19 @@ export function SavedRepositories() {
     URL.revokeObjectURL(url);
   }
 
+  function removeRepository(url: string) {
+    const next = repositories.filter((item) => item.url !== url);
+    try {
+      window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify(next));
+    } catch {
+      setRemovedMessage("Couldn't update browser storage. Please try again.");
+      return;
+    }
+    setRepositories(next);
+    setRemovedMessage("Repository removed from this device.");
+    window.dispatchEvent(new Event("repolens-saved-repositories-change"));
+  }
+
   return (
     <section aria-labelledby="saved-repositories-heading" className="border-b">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
@@ -94,12 +111,18 @@ export function SavedRepositories() {
             </select>
           </label>
         </div>
+        {removedMessage && <p role="status" className="mt-3 text-sm text-muted-foreground">{removedMessage}</p>}
         <ul className="mt-4 flex flex-wrap gap-2">
           {filteredRepositories.map((item) => (
             <li key={item.url} className="min-w-56 rounded-lg border bg-card p-3">
-              <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="text-sm font-medium text-primary hover:underline">
-                {item.repository}
-              </Link>
+              <div className="flex items-start justify-between gap-2">
+                <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="text-sm font-medium text-primary hover:underline">
+                  {item.repository}
+                </Link>
+                <Button type="button" variant="ghost" size="icon" aria-label={`Remove ${item.repository}`} onClick={() => removeRepository(item.url)}>
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {item.lastRefreshedAt
                   ? `Last refreshed ${new Date(item.lastRefreshedAt).toLocaleString()}`
