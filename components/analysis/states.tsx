@@ -12,6 +12,7 @@ const TITLES: Record<ApiError["code"], { title: string; icon: typeof AlertCircle
   INACCESSIBLE: { title: "Repository not accessible", icon: Lock, retry: false },
   EMPTY_REPOSITORY: { title: "This repository is empty", icon: FolderX, retry: false },
   RATE_LIMITED: { title: "GitHub rate limit reached", icon: Clock, retry: true },
+  REQUEST_LIMITED: { title: "RepoLens request limit reached", icon: Clock, retry: false },
   TIMEOUT: { title: "GitHub took too long", icon: Clock, retry: true },
   NETWORK_ERROR: { title: "Connection problem", icon: WifiOff, retry: true },
   UPSTREAM_UNAVAILABLE: { title: "GitHub is unavailable", icon: AlertCircle, retry: true },

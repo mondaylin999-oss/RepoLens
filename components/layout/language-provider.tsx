@@ -256,6 +256,8 @@ const BURMESE: Record<string, string> = {
   "Repository not accessible": "Repository ကို ဝင်ကြည့်၍ မရပါ",
   "This repository is empty": "ဤ repository တွင် ဖိုင်မရှိပါ",
   "GitHub rate limit reached": "GitHub တောင်းဆိုမှု ကန့်သတ်ချက် ပြည့်သွားပါပြီ",
+  "RepoLens request limit reached": "RepoLens တောင်းဆိုမှု ကန့်သတ်ချက် ပြည့်သွားပါပြီ",
+  "You've made too many RepoLens requests in a short time. Wait until the reset time before trying again.": "အချိန်တိုအတွင်း RepoLens ကို အကြိမ်များစွာ တောင်းဆိုထားသည်။ ပြန်လည်စတင်ချိန်အထိ စောင့်ပြီးမှ ထပ်မံကြိုးစားပါ။",
   "GitHub took too long": "GitHub တုံ့ပြန်မှု ကြာမြင့်နေသည်",
   "Connection problem": "ချိတ်ဆက်မှု ပြဿနာ",
   "GitHub is unavailable": "GitHub ကို ယခု အသုံးမပြုနိုင်ပါ",

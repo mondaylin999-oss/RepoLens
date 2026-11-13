@@ -97,6 +97,7 @@ export type AnalysisErrorCode =
   | "INACCESSIBLE"
   | "EMPTY_REPOSITORY"
   | "RATE_LIMITED"
+  | "REQUEST_LIMITED"
   | "TIMEOUT"
   | "NETWORK_ERROR"
   | "UPSTREAM_UNAVAILABLE"

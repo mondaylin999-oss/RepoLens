@@ -6,6 +6,7 @@ import { analyzeRepository } from "@/lib/analysis/analyze";
 import type { AnalyzeResponse, ApiError } from "@/lib/types";
 import { readGitHubToken } from "@/lib/github/request-token";
 import { recordApiMetric } from "@/lib/observability/api-metrics";
+import { checkApiRequestLimit } from "@/lib/observability/rate-limit";
 
 export async function GET(request: NextRequest) {
   const startedAt = performance.now();
@@ -20,6 +21,26 @@ export async function GET(request: NextRequest) {
 }
 
 async function handleAnalysisRequest(request: NextRequest) {
+  const rateLimit = await checkApiRequestLimit(request, "analysis");
+  if (!rateLimit.allowed) {
+    return NextResponse.json({
+      ok: false,
+      error: {
+        code: "REQUEST_LIMITED",
+        message: "You've made too many RepoLens requests in a short time. Wait until the reset time before trying again.",
+        retryAt: rateLimit.retryAt,
+      },
+    }, {
+      status: 429,
+      headers: {
+        "Cache-Control": "no-store",
+        "Retry-After": String(Math.max(1, Math.ceil((Date.parse(rateLimit.retryAt) - Date.now()) / 1000))),
+        "X-RateLimit-Limit": String(rateLimit.limit),
+        "X-RateLimit-Remaining": String(rateLimit.remaining),
+        "X-RateLimit-Reset": String(Math.floor(Date.parse(rateLimit.retryAt) / 1000)),
+      },
+    });
+  }
   const input = request.nextUrl.searchParams.get("url") ?? "";
   const parsed = parseGitHubRepoUrl(input);
   if (!parsed.ok) return errorResponse({ code: "INVALID_URL", message: parsed.error });

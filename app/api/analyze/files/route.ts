@@ -5,6 +5,7 @@ import { getFileMatches } from "@/lib/analysis/checks";
 import type { CheckId } from "@/lib/types";
 import { readGitHubToken } from "@/lib/github/request-token";
 import { recordApiMetric } from "@/lib/observability/api-metrics";
+import { checkApiRequestLimit } from "@/lib/observability/rate-limit";
 
 const FILE_CHECKS = new Set<CheckId>(["readme", "license", "gitignore", "tests", "ci"]);
 
@@ -21,6 +22,19 @@ export async function GET(request: NextRequest) {
 }
 
 async function handleFileListRequest(request: NextRequest) {
+  const rateLimit = await checkApiRequestLimit(request, "analysis-files");
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "You've requested too many file lists. Wait until the reset time before trying again." }, {
+      status: 429,
+      headers: {
+        "Cache-Control": "no-store",
+        "Retry-After": String(Math.max(1, Math.ceil((Date.parse(rateLimit.retryAt) - Date.now()) / 1000))),
+        "X-RateLimit-Limit": String(rateLimit.limit),
+        "X-RateLimit-Remaining": String(rateLimit.remaining),
+        "X-RateLimit-Reset": String(Math.floor(Date.parse(rateLimit.retryAt) / 1000)),
+      },
+    });
+  }
   const parsed = parseGitHubRepoUrl(request.nextUrl.searchParams.get("url") ?? "");
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400, headers: { "Cache-Control": "no-store" } });
 
