@@ -25,6 +25,7 @@ export function SiteHeader() {
               <Link href="/" className="rounded-lg px-3 py-2 text-sm hover:bg-muted">{text("home")}</Link>
               <Link href="/#how-it-works" className="rounded-lg px-3 py-2 text-sm hover:bg-muted">{text("howItWorks")}</Link>
               <Link href="/analyze" className="rounded-lg px-3 py-2 text-sm hover:bg-muted">{text("analyzeRepository")}</Link>
+              <Link href="/workspaces" className="rounded-lg px-3 py-2 text-sm hover:bg-muted">{text("workspaces")}</Link>
               <div className="border-t pt-2"><LanguageSelector id="interface-language-mobile" className="w-full" /></div>
               {PROJECT_REPO_URL && (
                 <a href={PROJECT_REPO_URL} target="_blank" rel="noopener noreferrer" className="rounded-lg px-3 py-2 text-sm hover:bg-muted">
@@ -35,6 +36,7 @@ export function SiteHeader() {
           </details>
           <Link href="/" className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground sm:block">{text("home")}</Link>
           <Link href="/#how-it-works" className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground sm:block">{text("howItWorks")}</Link>
+          <Link href="/workspaces" className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground sm:block">{text("workspaces")}</Link>
           {PROJECT_REPO_URL && (
             <Button asChild variant="ghost" size="icon">
               <a href={PROJECT_REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={text("repoLensOnGitHub")}>

@@ -15,6 +15,7 @@ import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
 import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, notifySavedRepositoriesChanged, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
+import { ShareReviewButton } from "@/components/workspaces/share-review-button";
 import { CopyButton } from "./copy-button";
 import { ShareCardButton } from "./share-card-button";
 import { useLanguage } from "@/components/layout/language-provider";
@@ -303,6 +304,14 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
             language={data.repo.language}
             snapshot={{ score: data.score.score, earned: data.score.earned, complete: data.score.complete, analyzedAt: data.analyzedAt }}
           />
+          <ShareReviewButton review={{
+            repository: data.repo.fullName,
+            url: data.repo.htmlUrl,
+            score: data.score.score,
+            earned: data.score.earned,
+            complete: data.score.complete,
+            analyzedAt: data.analyzedAt,
+          }} />
           <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
             <Link href="/analyze">{t("Analyze another repository")}</Link>
           </Button>
