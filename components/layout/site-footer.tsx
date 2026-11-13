@@ -4,6 +4,7 @@ import { LogoMark } from "./logo";
 import { GitHubIcon } from "./github-icon";
 import { PROJECT_REPO_URL } from "@/lib/utils";
 import { useLanguage } from "./language-provider";
+import Link from "next/link";
 
 export function SiteFooter() {
   const { text } = useLanguage();
@@ -17,6 +18,7 @@ export function SiteFooter() {
           <span>{text("footerTagline")}</span>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/status" className="hover:text-foreground">{text("GitHub status")}</Link>
           {PROJECT_REPO_URL && (
             <a href={PROJECT_REPO_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-foreground">
               <GitHubIcon className="size-4" /> {text("github")}

@@ -4,6 +4,7 @@ import { AlertCircle, Clock, FolderX, Lock, RefreshCw, SearchX, WifiOff, ScanSea
 import type { ApiError } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
+import Link from "next/link";
 
 const TITLES: Record<ApiError["code"], { title: string; icon: typeof AlertCircle; retry: boolean }> = {
   INVALID_URL: { title: "That URL isn't a GitHub repository", icon: AlertCircle, retry: false },
@@ -42,6 +43,9 @@ export function ErrorState({ error, onRetry }: { error: ApiError; onRetry: () =>
       )}
       {meta.retry && (
         <Button variant="outline" className="mt-6" onClick={onRetry}><RefreshCw /> {t("Try again")}</Button>
+      )}
+      {["TIMEOUT", "NETWORK_ERROR", "UPSTREAM_UNAVAILABLE"].includes(error.code) && (
+        <Link href="/status" className="mt-4 text-sm font-medium text-primary hover:underline">{t("Check GitHub's service status")}</Link>
       )}
     </div>
   );
