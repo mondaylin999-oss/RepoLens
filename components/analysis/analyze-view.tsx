@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, Download, Info } from "lucide-react";
 import type { AnalysisResult, AnalyzeResponse, ApiError } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { RepoUrlForm } from "@/components/github/repo-url-form";
@@ -184,6 +184,48 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
     window.print();
   }
 
+  function exportMarkdown() {
+    const checkLines = data.checks.flatMap((check) => [
+      `### ${check.label} — ${check.status.toUpperCase()} (${check.points}/${check.maxPoints})`,
+      "",
+      check.evidence,
+      ...(check.matches.length ? ["", ...check.matches.map((match) => `- \`${match.replaceAll("`", "\\`")}\``)] : []),
+      "",
+    ]);
+    const recommendationLines = data.recommendations.flatMap((recommendation) => [
+      `### ${recommendation.title}`,
+      "",
+      recommendation.whyItMatters,
+      "",
+      ...recommendation.howToImprove.map((step, index) => `${index + 1}. ${step}`),
+      "",
+    ]);
+    const content = [
+      `# RepoLens analysis: ${data.repo.fullName}`,
+      "",
+      `Repository: ${data.repo.htmlUrl}`,
+      `Analyzed: ${new Date(data.analyzedAt).toISOString()}`,
+      "",
+      "## Readiness score",
+      "",
+      data.score.complete ? `**${data.score.score}/100**` : `**At least ${data.score.earned}/100** (${data.score.unknownPoints} points unverified)`,
+      "",
+      "## Checks and evidence",
+      "",
+      ...checkLines,
+      "## Recommendations",
+      "",
+      ...recommendationLines,
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = `${data.repo.fullName.replaceAll("/", "-")}-repolens-report.md`;
+    link.click();
+    URL.revokeObjectURL(objectUrl);
+  }
+
   return (
     <div className="print-report animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -196,6 +238,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
         <div className="no-print flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Print report</Button>
           <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>Save as PDF</Button>
+          <Button type="button" variant="outline" size="sm" onClick={exportMarkdown}><Download aria-hidden="true" />Export Markdown</Button>
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
