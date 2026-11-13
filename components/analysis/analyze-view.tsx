@@ -67,16 +67,22 @@ export function AnalyzeView({ url }: { url: string }) {
         {state.status === "idle" && <EmptyState />}
         {state.status === "loading" && <AnalysisSkeleton />}
         {state.status === "error" && <ErrorState error={state.error} onRetry={retry} />}
-        {state.status === "success" && <Results data={state.data} />}
+        {state.status === "success" && <Results data={state.data} submittedUrl={url} />}
       </div>
     </div>
   );
 }
 
-function Results({ data }: { data: AnalysisResult }) {
+function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: string }) {
   const { tree } = data;
   return (
     <div className="animate-fade-up space-y-6">
+      <p className="text-sm text-muted-foreground">
+        Analyzed repository:{" "}
+        <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all font-mono text-primary hover:underline">
+          {submittedUrl}
+        </a>
+      </p>
       {tree.status !== "complete" && (
         <div role="status" className="flex gap-3 rounded-xl border border-warning/40 bg-warning-soft p-4 text-sm">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
