@@ -15,5 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Analyze this repository
+      - name: Analyze a public sample repository
         uses: ./.github/actions/repolens-analysis
+        with:
+          repository: vercel/next.js
