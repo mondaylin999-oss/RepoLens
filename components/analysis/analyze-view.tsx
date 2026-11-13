@@ -194,7 +194,10 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       `### ${check.label} — ${check.status.toUpperCase()} (${check.points}/${check.maxPoints})`,
       "",
       check.evidence,
-      ...(check.matches.length ? ["", ...check.matches.map((match) => `- \`${match.replaceAll("`", "\\`")}\``)] : []),
+      "",
+      ...(check.matches.length
+        ? check.matches.map((match) => `- ${markdownEvidenceLink(match, data, check.id)}`)
+        : [`- [GitHub repository](${data.repo.htmlUrl})`]),
       "",
     ]);
     const recommendationLines = data.recommendations.flatMap((recommendation) => [
@@ -341,4 +344,17 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       </p>
     </div>
   );
+}
+
+function markdownEvidenceLink(value: string, data: AnalysisResult, checkId: AnalysisResult["checks"][number]["id"]) {
+  const label = value.replaceAll("[", "\\[").replaceAll("]", "\\]");
+  const licenseMetadata = checkId === "license" && (value === data.repo.license?.name || value === data.repo.license?.spdxId);
+  const isRepositoryMetadata = checkId === "description" || checkId === "demo" || licenseMetadata;
+  if (!isRepositoryMetadata) {
+    const branch = data.repo.defaultBranch.split("/").map(encodeURIComponent).join("/");
+    const path = value.split("/").map(encodeURIComponent).join("/");
+    return `[${label}](${data.repo.htmlUrl}/blob/${branch}/${path})`;
+  }
+  if (/^https?:\/\//i.test(value)) return `[${label}](${value.replaceAll(" ", "%20")})`;
+  return `[${label} (repository details)](${data.repo.htmlUrl})`;
 }
