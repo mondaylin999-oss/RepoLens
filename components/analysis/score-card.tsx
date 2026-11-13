@@ -22,6 +22,16 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
       <CardHeader>
         <CardTitle>Readiness score</CardTitle>
         <CardDescription>Basic portfolio presentation — not code quality or security.</CardDescription>
+        <details className="group text-sm">
+          <summary className="w-fit cursor-pointer rounded-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            What does this score mean?
+          </summary>
+          <p className="mt-2 text-muted-foreground">
+            It summarizes how ready this public repository looks to someone viewing it in a portfolio. Points come
+            from seven visible checks, and each result includes evidence. Missing file data can make the score
+            incomplete. It does not rate code quality or security.
+          </p>
+        </details>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center">
