@@ -17,20 +17,20 @@ export function formatSize(kilobytes: number): string {
   return `${(megabytes / 1024).toFixed(1)} GB`;
 }
 
-export function formatDate(iso: string | null): string {
+export function formatDate(iso: string | null, locale = "en"): string {
   if (!iso) return "Unknown";
-  return new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "numeric" }).format(new Date(iso));
+  return new Intl.DateTimeFormat(locale, { year: "numeric", month: "short", day: "numeric" }).format(new Date(iso));
 }
 
-export function relativeTime(iso: string | null, now = Date.now()): string {
+export function relativeTime(iso: string | null, now = Date.now(), locale = "en"): string {
   if (!iso) return "";
   const diff = (new Date(iso).getTime() - now) / 1000;
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60],
   ];
   for (const [unit, s] of units) if (Math.abs(diff) >= s) return rtf.format(Math.round(diff / s), unit);
-  return "just now";
+  return rtf.format(0, "second");
 }
 
 export const PROJECT_REPO_URL = process.env.NEXT_PUBLIC_PROJECT_REPO_URL || "";

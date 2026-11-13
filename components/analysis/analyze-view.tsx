@@ -145,7 +145,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
 
       <div aria-busy={state.status === "loading"}>
         {state.status === "idle" && <EmptyState />}
-        {state.status === "loading" && <AnalysisSkeleton message={loadingMessage} />}
+        {state.status === "loading" && <AnalysisSkeleton message={t(loadingMessage)} />}
         {state.status === "error" && <ErrorState error={state.error} onRetry={retry} />}
         {state.status === "success" && <Results data={state.data} submittedUrl={url} checklistOnly={checklistOnly} />}
       </div>
@@ -154,7 +154,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
 }
 
 function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; submittedUrl: string; checklistOnly: boolean }) {
-  const { text: t } = useLanguage();
+  const { text: t, language } = useLanguage();
   const [includeScoreInShare, setIncludeScoreInShare] = useState(true);
   const [shareOrigin, setShareOrigin] = useState("");
   useEffect(() => setShareOrigin(window.location.origin), []);
@@ -264,11 +264,11 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
   if (checklistOnly) {
     return (
       <div className="print-report animate-fade-up space-y-6">
-        <p role="status" className="sr-only">Checklist results are ready for {data.repo.fullName}.</p>
+        <p role="status" className="sr-only">{t("Checklist results are ready for")} {data.repo.fullName}.</p>
         <div>
           <h2 className="text-xl font-semibold">{t("Checklist-only report")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{t("View on GitHub")}</a></p>
-          <p className="mt-1 text-xs text-muted-foreground">{t("Based on public GitHub repository data checked")} {new Date(data.analyzedAt).toLocaleString()}.</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("Based on public GitHub repository data checked")} {new Date(data.analyzedAt).toLocaleString(language === "my" ? "my-MM" : "en-US")}.</p>
         </div>
         <Checklist checks={data.checks} repoUrl={data.repo.htmlUrl} defaultBranch={data.repo.defaultBranch} fileCount={data.tree.fileCount} treeStatus={data.tree.status} />
       </div>
@@ -278,7 +278,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
   return (
     <div className="print-report animate-fade-up space-y-6">
       <p role="status" className="sr-only">
-        Analysis complete for {data.repo.fullName}. {data.score.complete ? `Readiness score ${data.score.score} out of 100.` : `At least ${data.score.earned} points confirmed; some checks are unverified.`}
+        {t("Analysis complete for")} {data.repo.fullName}. {data.score.complete ? `${t("Readiness score")} ${data.score.score} ${t("out of 100.")}` : `${t("at least")} ${data.score.earned} ${t("confirmed points")}; ${t("some checks are unverified.")}`}
       </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
@@ -320,7 +320,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
           <div key={item.label} className="rounded-xl border bg-card px-4 py-3">
             <dt className="text-xs text-muted-foreground">{t(item.label)}</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums">{item.value}</dd>
-            <p className="text-xs text-muted-foreground">{item.detail}</p>
+            <p className="text-xs text-muted-foreground">{t(item.detail)}</p>
           </div>
         ))}
       </dl>
@@ -350,8 +350,8 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       <DescriptionGenerator description={data.description} repo={data.repo} />
       <p className="text-xs text-muted-foreground">
         <Info className="mr-1.5 inline size-3.5 align-[-2px]" />
-        Portfolio presentation only; this score does not measure code quality or security. Based on public GitHub repository data. Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}
-        {new Date(data.analyzedAt).toLocaleString()} · Results may be cached for up to 5 minutes.
+        {t("Portfolio presentation only; this score does not measure code quality or security.")} {t("Based on public GitHub repository data.")} {t("Analyzed")} {tree.fileCount.toLocaleString()} {t("files on the")} <code className="font-mono">{data.repo.defaultBranch}</code> {t("branch")} ·{" "}
+        {new Date(data.analyzedAt).toLocaleString(language === "my" ? "my-MM" : "en-US")} · {t("Results may be cached for up to 5 minutes.")}
       </p>
     </div>
   );

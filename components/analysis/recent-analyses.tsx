@@ -7,7 +7,7 @@ import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, type Lo
 import { useLanguage } from "@/components/layout/language-provider";
 
 export function RecentAnalyses() {
-  const { text: t } = useLanguage();
+  const { text: t, language } = useLanguage();
   const [ready, setReady] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [history, setHistory] = useState<LocalAnalysisHistoryEntry[]>([]);
@@ -76,7 +76,7 @@ export function RecentAnalyses() {
                   {item.repository}
                 </Link>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {item.complete ? `${item.score}/100` : `At least ${item.earned}/100`} · {new Date(item.analyzedAt).toLocaleDateString()}
+                  {item.complete ? `${item.score}/100` : `${t("at least")} ${item.earned}/100`} · {new Date(item.analyzedAt).toLocaleDateString(language === "my" ? "my-MM" : "en-US")}
                 </p>
               </li>
             ))}

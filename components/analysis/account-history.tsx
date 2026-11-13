@@ -16,7 +16,7 @@ interface AccountHistoryEntry {
 }
 
 export function AccountHistory() {
-  const { text: t } = useLanguage();
+  const { text: t, language } = useLanguage();
   const [ready, setReady] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
@@ -120,7 +120,7 @@ export function AccountHistory() {
             <li key={`${entry.url}-${entry.analyzedAt}-${index}`} className="rounded-lg border px-3 py-2 text-sm">
               <a href={`/analyze?url=${encodeURIComponent(entry.url)}`} className="font-medium text-primary hover:underline">{entry.repository}</a>
               <p className="mt-1 text-xs text-muted-foreground">
-                {entry.complete ? `${entry.score}/100` : `At least ${entry.earned}/100`} · {new Date(entry.analyzedAt).toLocaleDateString()}
+                {entry.complete ? `${entry.score}/100` : `${t("at least")} ${entry.earned}/100`} · {new Date(entry.analyzedAt).toLocaleDateString(language === "my" ? "my-MM" : "en-US")}
               </p>
             </li>
           ))}

@@ -62,7 +62,7 @@ const BURMESE: Record<string, string> = {
   "The score measures basic portfolio presentation — not code quality or security.": "ဤရမှတ်သည် portfolio တင်ပြပုံကိုသာ တိုင်းတာပြီး code အရည်အသွေး သို့မဟုတ် လုံခြုံရေးကို မတိုင်းတာပါ။",
   "Check a repository now": "Repository ကို ယခုပင် စစ်ဆေးပါ",
   "It takes a few seconds and works with any public repository.": "စက္ကန့်အနည်းငယ်သာ ကြာပြီး အများမြင်နိုင်သော repository မည်သည့်အရာမဆို အသုံးပြုနိုင်သည်။",
-  "GitHub repository URL": "GitHub repository URL",
+  "GitHub repository URL": "GitHub repository URL ထည့်ရန်",
   "Clear repository URL": "Repository URL ကို ရှင်းလင်းရန်",
   "Analyze Repository": "Repository စစ်ဆေးရန်",
   "What we check:": "စစ်ဆေးမည့်အရာများ:",
@@ -169,6 +169,19 @@ const BURMESE: Record<string, string> = {
   "Hide": "ဖျောက်ရန်",
   "Copy steps": "အဆင့်များ ကူးရန်",
   "Copy README outline": "README ၏ အကြမ်းဖျဉ်းကို ကူးရန်",
+  "Recent analyses": "လတ်တလော စစ်ဆေးမှုများ",
+  "Optional history, saved only in this browser.": "ရွေးချယ်နိုင်သော မှတ်တမ်းကို ဤ browser တွင်သာ သိမ်းထားသည်။",
+  "Save analysis history on this device": "စစ်ဆေးမှုမှတ်တမ်းကို ဤစက်တွင် သိမ်းရန်",
+  "Use your history across devices": "စက်အမျိုးမျိုးတွင် မှတ်တမ်းကို အသုံးပြုရန်",
+  "Sign in with GitHub to keep selected analysis history with your account.": "ရွေးချယ်ထားသော စစ်ဆေးမှုမှတ်တမ်းကို အကောင့်နှင့်အတူ သိမ်းရန် GitHub ဖြင့် ဝင်ပါ။",
+  "Sign out": "ထွက်ရန်",
+  "Sign in with GitHub": "GitHub ဖြင့် ဝင်ရန်",
+  "Sync my analysis history to this account": "ကျွန်ုပ်၏ စစ်ဆေးမှုမှတ်တမ်းကို ဤအကောင့်သို့ ထပ်တူပြုရန်",
+  "Your analyzed repositories will appear here.": "သင်စစ်ဆေးထားသော repository များ ဤနေရာတွင် ပေါ်လာပါမည်။",
+  "Forks": "Fork အရေအတွက်",
+  "Browse GitHub topic": "GitHub ခေါင်းစဉ်ကို ကြည့်ရန်",
+  "Based on public GitHub repository data.": "အများမြင်နိုင်သော GitHub repository အချက်အလက်အပေါ် အခြေခံသည်။",
+  " just now": "ယခုလေးတင်",
   "Couldn't update browser storage. Please try again.": "Browser သိုလှောင်မှုကို ပြင်ဆင်၍ မရပါ။ ထပ်မံကြိုးစားပါ။",
   "Repository removed from this device.": "ဤစက်မှ Repository ကို ဖယ်ရှားပြီးပါပြီ။",
   "The website field (\"{homepage}\") isn't a valid URL.": "ဝဘ်ဆိုက်အကွက်ရှိ \"{homepage}\" သည် မှန်ကန်သော URL မဟုတ်ပါ။",
@@ -246,7 +259,6 @@ const BURMESE: Record<string, string> = {
   "Archived": "မှတ်တမ်းသိမ်းထားသည်",
   "No description provided.": "ဖော်ပြချက် မရှိပါ။",
   "Stars": "ကြယ်ပွင့်",
-  "Forks": "Forks",
   "Open issues": "ဖွင့်ထားသော ပြဿနာများ",
   "Includes pull requests": "Pull request များလည်း ပါဝင်သည်",
   "Last updated": "နောက်ဆုံး ပြင်ဆင်ချိန်",
@@ -351,6 +363,32 @@ const BURMESE: Record<string, string> = {
   "Add repository topics": "Repository ခေါင်းစဉ်များ ထည့်ရန်",
   "The repository has no topics.": "Repository တွင် ခေါင်းစဉ်များ မရှိပါ။",
   "Topics make the project discoverable on GitHub and show its technologies at a glance. RepoLens also uses them in your portfolio description.": "ခေါင်းစဉ်များက GitHub တွင် ပရောဂျက်ကို ရှာတွေ့လွယ်စေပြီး အသုံးပြုထားသော နည်းပညာများကို တစ်ချက်ကြည့်ရုံဖြင့် သိစေသည်။ RepoLens က Portfolio ဖော်ပြချက်တွင်လည်း ၎င်းတို့ကို အသုံးပြုသည်။",
+  "Write a repository description": "Repository အကြောင်း ဖော်ပြချက်ရေးရန်",
+  "A .gitignore keeps dependencies, build output, editor files and secrets such as .env out of the repository, which keeps it clean and safer to share.": ".gitignore သည် dependency များ၊ build ဖိုင်များ၊ editor ဖိုင်များနှင့် .env ကဲ့သို့သော လျှို့ဝှက်ချက်များကို repository ထဲမဝင်စေဘဲ သန့်ရှင်းပြီး မျှဝေရလုံခြုံစေသည်။",
+  "Start with tests for the most important functionality, such as core logic and data handling.": "အဓိက logic နှင့် ဒေတာကိုင်တွယ်မှုကဲ့သို့ အရေးအကြီးဆုံးလုပ်ဆောင်ချက်များအတွက် စမ်းသပ်မှုများမှ စတင်ပါ။",
+  "Document how to run the tests in your README.": "စမ်းသပ်မှုများကို မည်သို့လုပ်ဆောင်ရမည်ကို README တွင် မှတ်တမ်းတင်ပါ။",
+  "CI automatically checks every push, for example by running a build, linter or tests. It isn't required for every project, but it shows good engineering habits.": "CI သည် push တစ်ကြိမ်စီတွင် build၊ linter သို့မဟုတ် စမ်းသပ်မှုများကို အလိုအလျောက် လုပ်ဆောင်စစ်ဆေးသည်။ ပရောဂျက်တိုင်းအတွက် မလိုအပ်သော်လည်း အင်ဂျင်နီယာလုပ်ထုံးလုပ်နည်းကောင်းများကို ပြသသည်။",
+  "Consider adding a workflow file such as .github/workflows/ci.yml.": ".github/workflows/ci.yml ကဲ့သို့သော workflow ဖိုင်တစ်ခု ထည့်ရန် စဉ်းစားပါ။",
+  "Use a starter workflow from the repository's Actions tab.": "Repository ၏ Actions tab ရှိ အခြေခံ workflow တစ်ခုကို အသုံးပြုပါ။",
+  "Run your existing tests in the workflow.": "Workflow ထဲတွင် ရှိပြီးသား စမ်းသပ်မှုများကို လုပ်ဆောင်ပါ။",
+  "Start with a build or lint step, and add tests as you write them.": "Build သို့မဟုတ် lint အဆင့်ဖြင့် စတင်ပြီး စမ်းသပ်မှုများ ရေးသားသည့်အခါ ထည့်ပါ။",
+  "Add the workflow's status badge to your README.": "Workflow ၏ status badge ကို README တွင် ထည့်ပါ။",
+  "The website field is set, but it isn't a usable public demo URL.": "ဝဘ်ဆိုက်အကွက်တွင် URL ထည့်ထားသော်လည်း အများမြင်နိုင်သော သရုပ်ပြ URL အဖြစ် အသုံးမပြုနိုင်ပါ။",
+  "If this project has a user interface, consider publishing it on a host such as Vercel, Netlify, Render or GitHub Pages.": "ဤပရောဂျက်တွင် အသုံးပြုသူမျက်နှာပြင်ရှိပါက Vercel၊ Netlify၊ Render သို့မဟုတ် GitHub Pages ကဲ့သို့သော ဝန်ဆောင်မှုတွင် ထုတ်ဝေရန် စဉ်းစားပါ။",
+  "Add the URL in the \"Website\" field of the repository's \"About\" settings.": "Repository ၏ \"About\" ဆက်တင်ရှိ \"Website\" အကွက်တွင် URL ထည့်ပါ။",
+  "For projects without a UI, a short demo GIF or video in the README works well instead.": "အသုံးပြုသူမျက်နှာပြင်မရှိသော ပရောဂျက်များအတွက် README ထဲတွင် တိုတောင်းသော သရုပ်ပြ GIF သို့မဟုတ် ဗီဒီယိုထည့်နိုင်သည်။",
+  "RepoLens  ·  REPOSITORY READINESS": "RepoLens · Repository အသင့်ဖြစ်မှု",
+  "PORTFOLIO READINESS SCORE": "PORTFOLIO အသင့်ဖြစ်မှုရမှတ်",
+  "PARTIAL SCORE · SOME CHECKS UNVERIFIED": "ရမှတ် မပြည့်စုံပါ · အချို့စစ်ဆေးချက်များ အတည်မပြုနိုင်ပါ",
+  "Based on public GitHub repository details": "အများမြင်နိုင်သော GitHub repository အချက်အလက်အပေါ် အခြေခံသည်",
+  "Portfolio presentation only · Not a code quality or security measure": "Portfolio တင်ပြပုံကိုသာ အကဲဖြတ်သည် · code အရည်အသွေး သို့မဟုတ် လုံခြုံရေးကို မတိုင်းတာပါ",
+  "some checks are unverified.": "အချို့စစ်ဆေးချက်များကို အတည်မပြုနိုင်ပါ။",
+  "repository name": "repository အမည်",
+  "GitHub About description": "GitHub About ဖော်ပြချက်",
+  "primary language metadata": "အဓိက ပရိုဂရမ်းမင်းဘာသာစကား metadata",
+  "repository URL": "repository URL",
+  "editable placeholder": "ပြင်ဆင်နိုင်သော နေရာလွတ်စာသား",
+  "template wording": "နမူနာစာသား",
 };
 
 type MessageKey = keyof typeof MESSAGES.en;
@@ -386,9 +424,35 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const value: LanguageContextValue = {
     language,
     setLanguage,
-    text: (key) => key in MESSAGES.en
-      ? MESSAGES[language][key as MessageKey]
-      : language === "my" ? BURMESE[key] ?? key : key,
+    text: (key) => {
+      if (key in MESSAGES.en) return MESSAGES[language][key as MessageKey];
+      if (language === "en") return key;
+      const exact = BURMESE[key];
+      if (exact) return exact;
+      const unverifiedPoints = key.match(/^(\d+) points unverified$/);
+      if (unverifiedPoints) return `${unverifiedPoints[1]} မှတ်ကို အတည်မပြုနိုင်ပါ`;
+      const unverified = key.match(/^(\d+) unverified$/);
+      if (unverified) return `${unverified[1]} ခုကို အတည်မပြုနိုင်ပါ`;
+      const improvements = key.match(/^(\d+) ways to improve$/);
+      if (improvements) return `${improvements[1]} ခု တိုးတက်စေရန် နည်းလမ်းများ`;
+      const testFiles = key.match(/^Found ([\d,]+) test-related files?\. This shows tests exist, not that they pass\.$/);
+      if (testFiles) return `စမ်းသပ်မှုဆိုင်ရာ ဖိုင် ${testFiles[1]} ခု တွေ့ရှိသည်။ ဖိုင်များရှိကြောင်းသာ ပြပြီး စမ်းသပ်မှုများ အောင်မြင်ကြောင်း မဆိုလိုပါ။`;
+      const workflows = key.match(/^Found ([\d,]+) GitHub Actions workflows? in \.github\/workflows\/\.$/);
+      if (workflows) return `.github/workflows/ တွင် GitHub Actions workflow ${workflows[1]} ခု တွေ့ရှိသည်။`;
+      const detectedLicense = key.match(/^GitHub detected a license: (.+)\.$/);
+      if (detectedLicense) return `GitHub က လိုင်စင်ကို တွေ့ရှိသည်: ${detectedLicense[1]}။`;
+      const foundFile = key.match(/^Found (.+)\.$/);
+      if (foundFile) return `တွေ့ရှိသည် ${foundFile[1]}။`;
+      const aboutStep = key.match(/^Open (https:\/\/github\.com\/[^,]+), click the gear icon next to "About", and add a one-sentence summary\.$/);
+      if (aboutStep) return `${aboutStep[1]} ကို ဖွင့်ပြီး "About" ဘေးရှိ ဂီယာပုံကို နှိပ်ကာ ဝါကျတစ်ကြောင်းစာ အကျဉ်းချုပ် ထည့်ပါ။`;
+      const gitignoreTemplate = key.match(/^Start from the (.+ )?template in github\.com\/github\/gitignore\.$/);
+      if (gitignoreTemplate) return `${gitignoreTemplate[1] ?? ""}template ကို github.com/github/gitignore မှ ရယူပြီး စတင်ပါ။`;
+      const languageTestChoice = key.match(/^For a (.+) project, (.+) is a common choice\.$/);
+      if (languageTestChoice) return `${languageTestChoice[1]} ပရောဂျက်များအတွက် ${languageTestChoice[2]} ကို အသုံးများသည်။`;
+      const languageWorkflow = key.match(/^A typical (.+) workflow uses (.+)\.$/);
+      if (languageWorkflow) return `ပုံမှန် ${languageWorkflow[1]} workflow တွင် ${languageWorkflow[2]} ကို အသုံးပြုသည်။`;
+      return key;
+    },
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

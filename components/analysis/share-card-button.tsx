@@ -42,7 +42,7 @@ export function ShareCardButton({ repository, score, earned, complete, url }: {
 
     context.fillStyle = "#a99bff";
     context.font = "600 27px system-ui, sans-serif";
-    context.fillText("RepoLens  ·  REPOSITORY READINESS", 72, 88);
+    context.fillText(t("RepoLens  ·  REPOSITORY READINESS"), 72, 88);
     context.fillStyle = "#ffffff";
     context.font = "700 62px system-ui, sans-serif";
     const nameLines = wrapLines(context, repository, 790, 2);
@@ -57,14 +57,14 @@ export function ShareCardButton({ repository, score, earned, complete, url }: {
     context.fillText(complete ? `${score ?? 0}/100` : `≥ ${earned}/100`, 104, 492);
     context.fillStyle = "#e6e6f4";
     context.font = "500 25px system-ui, sans-serif";
-    context.fillText(complete ? "PORTFOLIO READINESS SCORE" : "PARTIAL SCORE · SOME CHECKS UNVERIFIED", 510, 478);
+    context.fillText(t(complete ? "PORTFOLIO READINESS SCORE" : "PARTIAL SCORE · SOME CHECKS UNVERIFIED"), 510, 478);
     context.fillStyle = "#b9b8d1";
     context.font = "400 21px system-ui, sans-serif";
     context.fillText(trimText(context, url, 560), 510, 518);
     context.fillStyle = "rgba(255, 255, 255, .65)";
     context.font = "400 19px system-ui, sans-serif";
-    context.fillText("Based on public GitHub repository details", 72, 588);
-    context.fillText("Portfolio presentation only · Not a code quality or security measure", 72, 613);
+    context.fillText(t("Based on public GitHub repository details"), 72, 588);
+    context.fillText(t("Portfolio presentation only · Not a code quality or security measure"), 72, 613);
 
     canvas.toBlob((blob) => {
       if (blob) {

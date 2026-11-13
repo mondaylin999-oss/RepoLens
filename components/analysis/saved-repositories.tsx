@@ -8,7 +8,7 @@ import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedRepository } f
 import { useLanguage } from "@/components/layout/language-provider";
 
 export function SavedRepositories() {
-  const { text: t } = useLanguage();
+  const { text: t, language } = useLanguage();
   const [ready, setReady] = useState(false);
   const [repositories, setRepositories] = useState<SavedRepository[]>([]);
   const [languageFilter, setLanguageFilter] = useState("all");
@@ -127,8 +127,8 @@ export function SavedRepositories() {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {item.lastRefreshedAt
-                  ? `${t("Last refreshed")} ${new Date(item.lastRefreshedAt).toLocaleString()}`
-                  : `${t("Saved")} ${new Date(item.savedAt).toLocaleDateString()}`}
+                  ? `${t("Last refreshed")} ${new Date(item.lastRefreshedAt).toLocaleString(language === "my" ? "my-MM" : "en-US")}`
+                  : `${t("Saved")} ${new Date(item.savedAt).toLocaleDateString(language === "my" ? "my-MM" : "en-US")}`}
               </p>
               <ScoreHistoryChart repository={item.repository} snapshots={item.scoreHistory ?? []} />
               <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="mt-2 inline-flex text-xs font-medium text-primary hover:underline">
