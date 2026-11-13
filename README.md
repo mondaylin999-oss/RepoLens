@@ -106,6 +106,15 @@ npm start           # serve the production build
 
 `GET /api/analyze?url=<encoded GitHub repository URL>`
 
+External tools can use the stable, cross-origin endpoint `GET https://repo-lens-free-frame.vercel.app/api/v1/analyze?url=<encoded GitHub repository URL>`. It requires no API key, accepts public repositories only, and returns the same JSON response as the in-app API. CORS is enabled for browser-based tools. It uses the shared 30-requests-per-minute RepoLens limit and the deployment's GitHub API allowance; no per-caller GitHub token is needed.
+
+```js
+const endpoint = new URL("https://repo-lens-free-frame.vercel.app/api/v1/analyze");
+endpoint.searchParams.set("url", "https://github.com/vercel/next.js");
+const response = await fetch(endpoint);
+const result = await response.json();
+```
+
 - `200` → `{ "ok": true, "data": AnalysisResult }`
 - Errors → `{ "ok": false, "error": { "code", "message", "retryAt?" } }`
 
