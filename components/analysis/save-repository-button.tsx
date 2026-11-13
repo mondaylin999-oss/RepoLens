@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BookmarkCheck, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedScoreSnapshot } from "@/lib/analysis/local-history";
+import { notifySavedRepositoriesChanged, readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedScoreSnapshot } from "@/lib/analysis/local-history";
 import { useLanguage } from "@/components/layout/language-provider";
 
 export function SaveRepositoryButton({ repository, url, language, snapshot }: { repository: string; url: string; language: string | null; snapshot: SavedScoreSnapshot }) {
@@ -25,6 +25,7 @@ export function SaveRepositoryButton({ repository, url, language, snapshot }: { 
         { repository, url, language, savedAt: new Date().toISOString(), lastRefreshedAt: snapshot.analyzedAt, scoreHistory: [snapshot] },
         ...current,
       ]));
+      notifySavedRepositoriesChanged("upsert", url);
       setSaved(true);
     } catch {
       setSaved(false);

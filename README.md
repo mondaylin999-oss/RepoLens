@@ -17,7 +17,7 @@ Version 1.0 uses **no AI**. Every score, recommendation, and description comes f
 - **Portfolio description generator:** portfolio and LinkedIn formats, built only from verified fields. Missing information becomes a `[bracketed placeholder]` and is never invented.
 - **Readable error messages** for invalid URLs, missing or private repositories, empty repositories, rate limits, timeouts, and GitHub outages.
 - Light and dark mode, responsive layout, keyboard and screen-reader friendly.
-- No sign-in is needed to analyze a public repository. Optional GitHub sign-in can sync recent analysis history across devices.
+- No sign-in is needed to analyze a public repository. Optional GitHub sign-in can sync recent analysis history and saved repositories across devices.
 - Saved repositories and checklists stay in your browser unless you enable account history sync. Privacy details are available at `/privacy`.
 
 ## Scoring rules
@@ -85,7 +85,7 @@ Open http://localhost:3000.
 | `AUTH_SECRET` | Vercel production | Auth.js session signing secret; use at least 32 random characters. |
 | `AUTH_GITHUB_ID` | Vercel production | GitHub OAuth App client ID. |
 | `AUTH_GITHUB_SECRET` | Vercel production | GitHub OAuth App client secret. |
-| `DATABASE_URL` | Vercel production | PostgreSQL connection URL for account history and shared request limits. |
+| `DATABASE_URL` | Vercel production | PostgreSQL connection URL for account history, saved repositories, and shared request limits. |
 
 The public analysis API allows 30 analyses per client per minute; expanded file-list requests allow 20 per minute. Limits are shared across instances when Neon is available. Each analysis uses 2 GitHub API calls, or 3 when the default branch name contains `/`. Without a GitHub token, the separate GitHub allowance is about 30 analyses per hour per server IP, so set `GITHUB_TOKEN` in production if traffic requires it.
 

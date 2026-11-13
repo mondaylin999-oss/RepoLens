@@ -2,6 +2,12 @@ export const HISTORY_ENABLED_KEY = "repolens-save-history-enabled";
 export const ANALYSIS_HISTORY_KEY = "repolens-analysis-history";
 export const SAVED_REPOSITORIES_KEY = "repolens-saved-repositories";
 export const ACCOUNT_SYNC_ENABLED_KEY = "repolens-account-history-sync-enabled";
+export const ACCOUNT_SAVED_REPOSITORIES_SYNC_KEY = "repolens-account-saved-repositories-sync-enabled";
+export const SAVED_REPOSITORIES_CHANGE_EVENT = "repolens-saved-repositories-change";
+
+export function notifySavedRepositoriesChanged(action: "upsert" | "remove", url?: string) {
+  window.dispatchEvent(new CustomEvent(SAVED_REPOSITORIES_CHANGE_EVENT, { detail: { action, url } }));
+}
 
 export interface LocalAnalysisHistoryEntry {
   repository: string;

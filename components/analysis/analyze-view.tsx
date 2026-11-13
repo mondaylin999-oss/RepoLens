@@ -13,7 +13,7 @@ import { RecommendationList } from "./recommendations";
 import { DescriptionGenerator } from "./description-generator";
 import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
-import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
+import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, notifySavedRepositoriesChanged, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
 import { CopyButton } from "./copy-button";
 import { ShareCardButton } from "./share-card-button";
@@ -128,6 +128,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
       const scoreHistory = [...(entry.scoreHistory ?? []).filter((item) => item.analyzedAt !== snapshot.analyzedAt), snapshot].slice(-12);
       saved[index] = { ...entry, language: data.repo.language, lastRefreshedAt: snapshot.analyzedAt, scoreHistory };
       window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify(saved));
+      notifySavedRepositoriesChanged("upsert", data.repo.htmlUrl);
     } catch {
       // Keep the result visible if browser storage is unavailable.
     }

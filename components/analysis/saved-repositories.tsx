@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedRepository } from "@/lib/analysis/local-history";
+import { notifySavedRepositoriesChanged, readSavedRepositories, SAVED_REPOSITORIES_CHANGE_EVENT, SAVED_REPOSITORIES_KEY, type SavedRepository } from "@/lib/analysis/local-history";
 import { useLanguage } from "@/components/layout/language-provider";
 
 export function SavedRepositories() {
@@ -18,9 +18,9 @@ export function SavedRepositories() {
   useEffect(() => {
     const refresh = () => setRepositories(readSavedRepositories());
     refresh();
-    window.addEventListener("repolens-saved-repositories-change", refresh);
+    window.addEventListener(SAVED_REPOSITORIES_CHANGE_EVENT, refresh);
     setReady(true);
-    return () => window.removeEventListener("repolens-saved-repositories-change", refresh);
+    return () => window.removeEventListener(SAVED_REPOSITORIES_CHANGE_EVENT, refresh);
   }, []);
 
   if (!ready || repositories.length === 0) return null;
@@ -78,7 +78,7 @@ export function SavedRepositories() {
     }
     setRepositories(next);
     setRemovedMessage("Repository removed from this device.");
-    window.dispatchEvent(new Event("repolens-saved-repositories-change"));
+    notifySavedRepositoriesChanged("remove", url);
   }
 
   return (

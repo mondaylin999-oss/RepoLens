@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { LanguageProvider } from "@/components/layout/language-provider";
 import { GitHubTokenProvider } from "@/components/layout/github-token-provider";
+import { AccountSavedRepositories } from "@/components/analysis/account-saved-repositories";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Skip to content
           </a>
           <SiteHeader />
-          <main id="main" className="flex-1">{children}</main>
+          <main id="main" className="flex-1">{children}<AccountSavedRepositories /></main>
           <SiteFooter />
           </LanguageProvider>
           </GitHubTokenProvider>

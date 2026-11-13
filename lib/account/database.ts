@@ -24,3 +24,21 @@ export async function ensureAccountHistoryTable() {
   `;
   return sql;
 }
+
+export async function ensureAccountSavedRepositoriesTable() {
+  const sql = getAccountDatabase();
+  if (!sql) return null;
+  await sql`
+    CREATE TABLE IF NOT EXISTS repolens_account_saved_repositories (
+      user_id TEXT NOT NULL,
+      repository TEXT NOT NULL,
+      url TEXT NOT NULL,
+      language TEXT,
+      saved_at TIMESTAMPTZ NOT NULL,
+      last_refreshed_at TIMESTAMPTZ,
+      score_history JSONB NOT NULL DEFAULT '[]'::jsonb,
+      PRIMARY KEY (user_id, url)
+    )
+  `;
+  return sql;
+}
