@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { readSavedRepositories, type SavedRepository } from "@/lib/analysis/local-history";
 
 export function SavedRepositories() {
@@ -29,10 +31,47 @@ export function SavedRepositories() {
     return latest.score < 60;
   });
 
+  function exportRepositories(format: "json" | "csv") {
+    const date = new Date().toISOString().slice(0, 10);
+    let content: string;
+    let mime: string;
+    let extension: string;
+    if (format === "json") {
+      content = JSON.stringify(repositories, null, 2);
+      mime = "application/json";
+      extension = "json";
+    } else {
+      const quote = (value: string | number | boolean | null | undefined) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+      const rows = [
+        ["repository", "url", "language", "savedAt", "lastRefreshedAt", "latestScore", "scoreComplete"],
+        ...repositories.map((item) => {
+          const latest = item.scoreHistory?.at(-1);
+          return [item.repository, item.url, item.language ?? "", item.savedAt, item.lastRefreshedAt ?? "", latest?.score ?? latest?.earned ?? "", latest?.complete ?? ""];
+        }),
+      ];
+      content = rows.map((row) => row.map(quote).join(",")).join("\r\n");
+      mime = "text/csv;charset=utf-8";
+      extension = "csv";
+    }
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `repolens-saved-repositories-${date}.${extension}`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <section aria-labelledby="saved-repositories-heading" className="border-b">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        <h2 id="saved-repositories-heading" className="font-semibold">Saved repositories</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 id="saved-repositories-heading" className="font-semibold">Saved repositories</h2>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={() => exportRepositories("json")}><Download aria-hidden="true" />Export JSON</Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => exportRepositories("csv")}><Download aria-hidden="true" />Export CSV</Button>
+          </div>
+        </div>
         <p className="mt-1 text-sm text-muted-foreground">Your list is stored only in this browser. No account needed.</p>
         <p className="mt-1 text-xs text-muted-foreground">Saved scores can become outdated as repositories change. Choose “Analyze again” to refresh one.</p>
         <div className="mt-4 flex flex-wrap gap-3">
