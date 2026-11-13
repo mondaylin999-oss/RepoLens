@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import type { RepoMetadata, RepoTree } from "@/lib/types";
 import { GitHubError } from "./errors";
 
@@ -11,6 +12,13 @@ const TIMEOUT_MS = 10_000;
 const CACHE_SECONDS = 300;
 
 type FetchLike = typeof fetch;
+
+interface SharedRequestResult {
+  data?: unknown;
+  error?: GitHubError;
+}
+
+const inFlightRequests = new WeakMap<FetchLike, Map<string, Promise<SharedRequestResult>>>();
 
 export interface GitHubClientOptions {
   token?: string;
@@ -114,26 +122,46 @@ export class GitHubClient {
     };
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
-    let res: Response;
-    try {
-      res = await this.fetchImpl(`${API_ORIGIN}${path}`, {
-        headers,
-        signal: controller.signal,
-        ...(this.token ? { cache: "no-store" } : { next: { revalidate: CACHE_SECONDS } }),
-      } as RequestInit);
-    } catch (err) {
-      if (isAbort(err)) {
-        throw new GitHubError("TIMEOUT", "GitHub took too long to respond. Please try again.", 504);
-      }
-      throw new GitHubError("NETWORK_ERROR", "Couldn't reach GitHub. Check your connection and try again.", 502);
-    } finally {
-      clearTimeout(timer);
+    const url = `${API_ORIGIN}${path}`;
+    const authKey = this.token ? createHash("sha256").update(this.token).digest("hex") : "public";
+    const key = `${authKey}:${url}`;
+    let pending = inFlightRequests.get(this.fetchImpl);
+    if (!pending) {
+      pending = new Map();
+      inFlightRequests.set(this.fetchImpl, pending);
     }
 
-    if (res.ok) return (await res.json()) as T;
-    throw await toError(res, what, Boolean(this.token));
+    let request = pending.get(key);
+    if (!request) {
+      // Share only concurrent requests. Successful public responses also reuse Next's
+      // short fetch cache below; request tokens are represented by a one-way digest.
+      request = (async () => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+          const res = await this.fetchImpl(url, {
+            headers,
+            signal: controller.signal,
+            ...(this.token ? { cache: "no-store" } : { next: { revalidate: CACHE_SECONDS } }),
+          } as RequestInit);
+          if (res.ok) return { data: await res.json() };
+          return { error: await toError(res, what, Boolean(this.token)) };
+        } catch (err) {
+          if (isAbort(err)) {
+            return { error: new GitHubError("TIMEOUT", "GitHub took too long to respond. Please try again.", 504) };
+          }
+          return { error: new GitHubError("NETWORK_ERROR", "Couldn't reach GitHub. Check your connection and try again.", 502) };
+        } finally {
+          clearTimeout(timer);
+          pending?.delete(key);
+        }
+      })();
+      pending.set(key, request);
+    }
+
+    const result = await request;
+    if (result.error) throw result.error;
+    return result.data as T;
   }
 }
 
