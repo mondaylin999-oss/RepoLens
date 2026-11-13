@@ -1,6 +1,7 @@
 export const HISTORY_ENABLED_KEY = "repolens-save-history-enabled";
 export const ANALYSIS_HISTORY_KEY = "repolens-analysis-history";
 export const SAVED_REPOSITORIES_KEY = "repolens-saved-repositories";
+export const ACCOUNT_SYNC_ENABLED_KEY = "repolens-account-history-sync-enabled";
 
 export interface LocalAnalysisHistoryEntry {
   repository: string;

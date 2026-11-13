@@ -5,6 +5,7 @@ import { FirstVisitGuide } from "@/components/layout/first-visit-guide";
 import { RecentAnalyses } from "@/components/analysis/recent-analyses";
 import { SavedRepositories } from "@/components/analysis/saved-repositories";
 import { RepositoryComparison } from "@/components/analysis/repository-comparison";
+import { AccountHistory } from "@/components/analysis/account-history";
 import { CHECK_DEFINITIONS } from "@/lib/analysis/checks";
 
 const STEPS = [
@@ -45,6 +46,7 @@ export default function HomePage() {
 
       <FirstVisitGuide />
       <RecentAnalyses />
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6"><AccountHistory /></div>
       <SavedRepositories />
       <RepositoryComparison />
       <ThemePreview />

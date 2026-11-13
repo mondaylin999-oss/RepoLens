@@ -13,7 +13,7 @@ import { RecommendationList } from "./recommendations";
 import { DescriptionGenerator } from "./description-generator";
 import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
-import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
+import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
 
 type State =
@@ -79,6 +79,28 @@ export function AnalyzeView({ url }: { url: string }) {
       window.localStorage.setItem(ANALYSIS_HISTORY_KEY, JSON.stringify(next));
     } catch {
       // Analysis results remain available even when browser storage is disabled.
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (state.status !== "success") return;
+    try {
+      if (window.localStorage.getItem(ACCOUNT_SYNC_ENABLED_KEY) !== "true") return;
+      const data = state.data;
+      void fetch("/api/account/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: [{
+          repository: data.repo.fullName,
+          url: data.repo.htmlUrl,
+          score: data.score.score,
+          earned: data.score.earned,
+          complete: data.score.complete,
+          analyzedAt: data.analyzedAt,
+        }] }),
+      });
+    } catch {
+      // Keep the analysis available if account sync is unavailable.
     }
   }, [state]);
 
