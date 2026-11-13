@@ -10,7 +10,9 @@ export function Checklist({ checks }: { checks: CheckResult[] }) {
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div>
           <CardTitle>Analysis checklist</CardTitle>
-          <CardDescription>Each item shows the evidence RepoLens found.</CardDescription>
+          <CardDescription>
+            Each item shows the evidence RepoLens found. Test files are detected, but RepoLens does not run them.
+          </CardDescription>
         </div>
         <Badge variant="muted" className="shrink-0 tabular-nums">{passed}/{checks.length} detected</Badge>
       </CardHeader>
