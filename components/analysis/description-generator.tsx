@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Copy, RotateCcw } from "lucide-react";
 import type { PortfolioDescription } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { RepoMetadata } from "@/lib/types";
-import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
+import { cleanDescription, localizeDescriptionDraft, PLACEHOLDERS, type DescriptionLanguage } from "@/lib/portfolio/generator";
 import { useLanguage } from "@/components/layout/language-provider";
 
 type Format = "short" | "portfolio" | "linkedin" | "caseStudy" | "website" | "resume";
 type Audience = "recruiters" | "collaborators" | "clients";
-type TextKey = `${Audience}-${Format}`;
+type TextKey = `${Audience}-${Format}-${DescriptionLanguage}`;
 type Fact = "project" | "overview" | "technology" | "demo" | "source";
 type Tone = "direct" | "conversational" | "formal";
 const FACTS: { id: Fact; label: string }[] = [
@@ -28,6 +28,12 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
   collaborators: "Project overview for collaborators",
   clients: "Project overview for clients",
 };
+const AUDIENCE_LABELS_MY: Record<Audience, string> = {
+  recruiters: "အလုပ်ခန့်သူများအတွက် Portfolio အကျဉ်းချုပ်",
+  collaborators: "ပူးပေါင်းလုပ်ဆောင်သူများအတွက် ပရောဂျက်အကျဉ်းချုပ်",
+  clients: "ဖောက်သည်များအတွက် ပရောဂျက်အကျဉ်းချုပ်",
+};
+const DESCRIPTION_LANGUAGE_STORAGE_KEY = "repolens-description-language";
 const AUDIENCES: { id: Audience; label: string }[] = [
   { id: "recruiters", label: "Recruiters" },
   { id: "collaborators", label: "Collaborators" },
@@ -48,14 +54,39 @@ const FORMATS: { id: Format; label: string }[] = [
 ];
 
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
-  const { text: t } = useLanguage();
+  const { text: t, language: interfaceLanguage } = useLanguage();
+  const [descriptionLanguage, setDescriptionLanguage] = useState<DescriptionLanguage>("en");
+  const [hasSavedLanguagePreference, setHasSavedLanguagePreference] = useState(false);
   const [format, setFormat] = useState<Format>("portfolio");
   const [compareMode, setCompareMode] = useState(false);
   const [compareFormat, setCompareFormat] = useState<Format>("linkedin");
   const [audience, setAudience] = useState<Audience>("recruiters");
   const [tone, setTone] = useState<Tone>("direct");
   const [includedFacts, setIncludedFacts] = useState<Record<Fact, boolean>>({ project: true, overview: true, technology: true, demo: true, source: true });
-  const generated: Record<Format, string> = {
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(DESCRIPTION_LANGUAGE_STORAGE_KEY);
+      if (saved === "en" || saved === "my") {
+        setDescriptionLanguage(saved);
+        setHasSavedLanguagePreference(true);
+        return;
+      }
+    } catch {
+      // The choice follows the interface language for this visit when storage is unavailable.
+    }
+    setDescriptionLanguage(interfaceLanguage);
+    setHasSavedLanguagePreference(false);
+  }, [interfaceLanguage]);
+  useEffect(() => {
+    if (!hasSavedLanguagePreference) return;
+    try {
+      window.localStorage.setItem(DESCRIPTION_LANGUAGE_STORAGE_KEY, descriptionLanguage);
+    } catch {
+      // The selected description language remains active for this visit.
+    }
+  }, [descriptionLanguage, hasSavedLanguagePreference]);
+
+  const generatedInEnglish: Record<Format, string> = {
     short: `${repo.name}: ${cleanDescription(repo.description) ?? PLACEHOLDERS.overview}`,
     portfolio: description.portfolio,
     linkedin: description.linkedin,
@@ -63,26 +94,35 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     website: websiteSummary(repo),
     resume: resumeSummary(repo),
   };
+  const generated: Record<Format, string> = descriptionLanguage === "my"
+    ? Object.fromEntries(FORMATS.map((item) => [item.id, localizeDescriptionDraft(generatedInEnglish[item.id], "my", repo.name)])) as Record<Format, string>
+    : generatedInEnglish;
   const [texts, setTexts] = useState<Record<TextKey, string>>(() => Object.fromEntries(
-    AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${generated[item.id]}`])),
+    AUDIENCES.flatMap((option) => FORMATS.flatMap((item) => (["en", "my"] as const).map((descriptionLang) => {
+      const base = descriptionLang === "my" ? localizeDescriptionDraft(generatedInEnglish[item.id], "my", repo.name) : generatedInEnglish[item.id];
+      const audienceLabel = descriptionLang === "my" ? AUDIENCE_LABELS_MY[option.id] : AUDIENCE_LABELS[option.id];
+      return [`${option.id}-${item.id}-${descriptionLang}`, `${audienceLabel}\n\n${base}`];
+    }))),
   ) as Record<TextKey, string>);
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
   const [copiedFormat, setCopiedFormat] = useState<Format | null>(null);
 
-  const textKey: TextKey = `${audience}-${format}`;
-  const tonePrefix = tone === "direct" ? "" : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
+  const textKey: TextKey = `${audience}-${format}-${descriptionLanguage}`;
+  const tonePrefix = tone === "direct" ? "" : descriptionLanguage === "my"
+    ? tone === "conversational" ? `${repo.name} ပရောဂျက်၏ အကျဉ်းချုပ်။` : `တရားဝင် ပရောဂျက်အကျဉ်းချုပ်: ${repo.name}။`
+    : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
   const getFormatText = (targetFormat: Format) => {
-    const targetKey: TextKey = `${audience}-${targetFormat}`;
+    const targetKey: TextKey = `${audience}-${targetFormat}-${descriptionLanguage}`;
     const base = filterFacts(texts[targetKey], repo, includedFacts);
     return tonePrefix ? `${tonePrefix}\n\n${base}` : base;
   };
   const text = getFormatText(format);
   const activeCompareFormat = compareFormat === format ? FORMATS.find((item) => item.id !== format)!.id : compareFormat;
-  const compareKey: TextKey = `${audience}-${activeCompareFormat}`;
+  const compareKey: TextKey = `${audience}-${activeCompareFormat}-${descriptionLanguage}`;
   const compareBaseText = filterFacts(texts[compareKey], repo, includedFacts);
   const compareText = tonePrefix ? `${tonePrefix}\n\n${compareBaseText}` : compareBaseText;
-  const sentences = text.split(/(?<=[.!?])\s+|\n+/).map((sentence) => sentence.trim()).filter(Boolean);
-  const originalBaseText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
+  const sentences = text.split(/(?<=[.!?။])\s+|\n+/).map((sentence) => sentence.trim()).filter(Boolean);
+  const originalBaseText = `${descriptionLanguage === "my" ? AUDIENCE_LABELS_MY[audience] : AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
   const originalText = tonePrefix ? `${tonePrefix}\n\n${originalBaseText}` : originalBaseText;
   const allFactsIncluded = FACTS.every((fact) => includedFacts[fact.id]);
   const edited = texts[textKey] !== originalText || !allFactsIncluded;
@@ -116,6 +156,22 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           <CardDescription>{t("Generated from verified repository details only. Edit it freely before copying.")}</CardDescription>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <div>
+            <label htmlFor="description-language" className="mr-2 text-xs text-muted-foreground">{t("Generated description language")}</label>
+            <select
+              id="description-language"
+              value={descriptionLanguage}
+              onChange={(event) => {
+                const next = event.target.value as DescriptionLanguage;
+                setDescriptionLanguage(next);
+                setHasSavedLanguagePreference(true);
+              }}
+              className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option value="en">English</option>
+              <option value="my">မြန်မာ</option>
+            </select>
+          </div>
           <div>
             <label htmlFor="description-audience" className="mr-2 text-xs text-muted-foreground">{t("Write for")}</label>
             <select id="description-audience" value={audience} onChange={(event) => setAudience(event.target.value as Audience)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -313,8 +369,8 @@ function filterFacts(text: string, repo: RepoMetadata, included: Record<Fact, bo
   return text.split("\n").filter((line) => {
     const trimmed = line.trim();
     if (!included.project && (trimmed === repo.name || trimmed === `# ${repo.name}` || trimmed.startsWith(`Project: ${repo.name}`) || trimmed.startsWith(`${repo.name} |`))) return false;
-    if (!included.overview && (trimmed.startsWith("Overview:") || trimmed === "## Overview" || (overview && trimmed.includes(overview)))) return false;
-    if (!included.technology && /^(Primary language:|Technology:|Technologies and topics:|Topics:|Written primarily in|Repository metadata lists:)/.test(trimmed)) return false;
+    if (!included.overview && (trimmed.startsWith("Overview:") || trimmed.startsWith("အကျဉ်းချုပ်:") || trimmed === "## Overview" || trimmed === "## အကျဉ်းချုပ်" || (overview && trimmed.includes(overview)))) return false;
+    if (!included.technology && /^(Primary language:|အဓိက ပရိုဂရမ်းမင်းဘာသာစကား:|Technology:|နည်းပညာ:|Technologies and topics:|နည်းပညာနှင့် ခေါင်းစဉ်များ:|Topics:|ခေါင်းစဉ်များ:|Written primarily in|အဓိကအားဖြင့်|Repository metadata lists:|Repository metadata တွင် ဖော်ပြထားသော နည်းပညာများ:)/.test(trimmed)) return false;
     if (!included.demo && repo.homepage && trimmed.includes(repo.homepage)) return false;
     if (!included.source && trimmed.includes(repo.htmlUrl)) return false;
     return true;

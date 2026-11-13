@@ -200,6 +200,7 @@ const BURMESE: Record<string, string> = {
   "Completed": "ပြီးစီးပြီ",
   "Mark complete": "ပြီးစီးကြောင်း မှတ်သားရန်",
   "Portfolio description": "Portfolio ဖော်ပြချက်",
+  "Generated description language": "ဖော်ပြချက်ဘာသာစကား",
   "Generated from verified repository details only. Edit it freely before copying.": "အတည်ပြုထားသော repository အချက်အလက်များကိုသာ အသုံးပြုဖန်တီးထားသည်။ မကူးမီ လွတ်လပ်စွာ ပြင်ဆင်ပါ။",
   "Write for": "ရည်ရွယ်သူ",
   "Tone": "လေသံ",
