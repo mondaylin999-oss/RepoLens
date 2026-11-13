@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Beaker, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GitHubIcon } from "@/components/layout/github-icon";
@@ -17,11 +17,14 @@ interface Props {
   className?: string;
 }
 
+const SAMPLE_REPOSITORY_URL = "https://github.com/vercel/next.js";
+
 export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, busy, className }: Props) {
   const router = useRouter();
   const id = useId();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
+  const [sampleSelected, setSampleSelected] = useState(false);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,6 +55,7 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
             value={value}
             onChange={(e) => {
               setValue(e.target.value);
+              setSampleSelected(false);
               if (error) setError(null);
             }}
             aria-invalid={!!error}
@@ -64,6 +68,28 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
           Analyze Repository
           {!busy && <ArrowRight />}
         </Button>
+      </div>
+      <div className="mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={busy}
+          onClick={() => {
+            setValue(SAMPLE_REPOSITORY_URL);
+            setError(null);
+            setSampleSelected(true);
+          }}
+        >
+          <Beaker />
+          Try a sample repository
+        </Button>
+        {sampleSelected && (
+          <p role="status" aria-live="polite" className="text-left text-xs text-muted-foreground">
+            This public Next.js repository is a demo. Analyzing it reads public GitHub details and files to
+            calculate a readiness score and suggest improvements. It won&apos;t change the repository.
+          </p>
+        )}
       </div>
       <p id={`${id}-error`} role="alert" className={cn("mt-2 min-h-5 text-sm text-danger", lg && "text-left")}>
         {error}
