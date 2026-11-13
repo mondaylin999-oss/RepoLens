@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CircleHelp, Eye, EyeOff, PartyPopper } from "lucide-react";
+import { CircleHelp, ExternalLink, Eye, EyeOff, PartyPopper } from "lucide-react";
 import type { Recommendation, RepoMetadata } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,17 @@ const PRIORITY = {
   medium: { label: "Medium impact", variant: "warning" },
   low: { label: "Nice to have", variant: "muted" },
 } as const;
+
+const OFFICIAL_DOCS: Partial<Record<Recommendation["checkId"], { label: string; url: string }>> = {
+  readme: { label: "About README files", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes" },
+  description: { label: "About your repository", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-your-repository" },
+  license: { label: "Licensing a repository", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository" },
+  gitignore: { label: "Ignoring files", url: "https://docs.github.com/en/get-started/git-basics/ignoring-files" },
+  tests: { label: "Build and test with GitHub Actions", url: "https://docs.github.com/en/actions/automating-builds-and-tests" },
+  ci: { label: "GitHub Actions", url: "https://docs.github.com/en/actions" },
+  demo: { label: "About your repository", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-your-repository" },
+  topics: { label: "Classify your repository with topics", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/classifying-your-repository-with-topics" },
+};
 
 export function RecommendationList({ recommendations, complete, repo }: { recommendations: Recommendation[]; complete: boolean; repo: RepoMetadata }) {
   const storageKey = `repolens-hidden-recommendations:${repo.fullName}`;
@@ -91,7 +102,9 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
           <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">All recommendations are hidden. You can restore them above.</p>
         ) : (
           <ol className="grid gap-4 md:grid-cols-2">
-            {visibleRecommendations.map((r) => (
+            {visibleRecommendations.map((r) => {
+              const docs = OFFICIAL_DOCS[r.checkId];
+              return (
               <li key={r.checkId} className="flex flex-col rounded-lg border p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">{r.title}</h3>
@@ -128,9 +141,15 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
                     </dd>
                   </div>
                 </dl>
+                {docs && (
+                  <a href={docs.url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex w-fit items-center gap-1.5 text-sm text-primary hover:underline">
+                    GitHub docs: {docs.label}<ExternalLink aria-hidden="true" className="size-3.5" />
+                  </a>
+                )}
                 {r.checkId === "license" && <LicenseGoalPicker />}
               </li>
-            ))}
+              );
+            })}
           </ol>
         )}
       </CardContent>
