@@ -254,7 +254,7 @@ const BURMESE: Record<string, string> = {
   ", to see its readiness score, checklist and recommendations.": " — ရမှတ်၊ စစ်ဆေးစာရင်းနှင့် အကြံပြုချက်များကို ကြည့်နိုင်သည်။",
   "Language: ": "ဘာသာစကား: ",
   "Size: ": "အရွယ်အစား: ",
-  "Branch: ": "Branch: ",
+  "Branch: ": "Branch ဌာနခွဲ: ",
   "Created ": "ဖန်တီးခဲ့သည် ",
   "Archived": "မှတ်တမ်းသိမ်းထားသည်",
   "No description provided.": "ဖော်ပြချက် မရှိပါ။",

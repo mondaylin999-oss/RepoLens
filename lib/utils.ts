@@ -25,10 +25,22 @@ export function formatDate(iso: string | null, locale = "en"): string {
 export function relativeTime(iso: string | null, now = Date.now(), locale = "en"): string {
   if (!iso) return "";
   const diff = (new Date(iso).getTime() - now) / 1000;
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60],
   ];
+  if (locale.toLowerCase().startsWith("my")) {
+    if (Math.abs(diff) < 60) return "ယခုလေးတင်";
+    const unitNames: Partial<Record<Intl.RelativeTimeFormatUnit, string>> = {
+      year: "နှစ်", month: "လ", week: "ပတ်", day: "ရက်", hour: "နာရီ", minute: "မိနစ်",
+    };
+    for (const [unit, seconds] of units) {
+      if (Math.abs(diff) >= seconds) {
+        const amount = new Intl.NumberFormat("my-MM").format(Math.round(Math.abs(diff) / seconds));
+        return diff < 0 ? `လွန်ခဲ့သော ${amount} ${unitNames[unit]}` : `${amount} ${unitNames[unit]} အတွင်း`;
+      }
+    }
+  }
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   for (const [unit, s] of units) if (Math.abs(diff) >= s) return rtf.format(Math.round(diff / s), unit);
   return rtf.format(0, "second");
 }

@@ -78,7 +78,7 @@ export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licens
       </div>
       <dl className="grid grid-cols-2 border-t sm:grid-cols-4">
         {stats.map((s, i) => (
-          <div key={s.label} title={s.hint} className={`p-4 sm:px-6 ${i % 2 === 1 ? "border-l" : ""} ${i >= 2 ? "border-t sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
+          <div key={s.label} title={s.hint ? translate(s.hint) : undefined} className={`p-4 sm:px-6 ${i % 2 === 1 ? "border-l" : ""} ${i >= 2 ? "border-t sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
             <dt className="flex items-center gap-1.5 text-xs text-muted-foreground"><s.icon className="size-3.5" />{translate(s.label)}</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums">{s.value}</dd>
           </div>
