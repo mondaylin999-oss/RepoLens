@@ -17,7 +17,8 @@ Version 1.0 uses **no AI**. Every score, recommendation, and description comes f
 - **Portfolio description generator:** portfolio and LinkedIn formats, built only from verified fields. Missing information becomes a `[bracketed placeholder]` and is never invented.
 - **Readable error messages** for invalid URLs, missing or private repositories, empty repositories, rate limits, timeouts, and GitHub outages.
 - Light and dark mode, responsive layout, keyboard and screen-reader friendly.
-- No sign-up, no database, no tracking.
+- No sign-in is needed to analyze a public repository. Optional GitHub sign-in can sync recent analysis history across devices.
+- Saved repositories and checklists stay in your browser unless you enable account history sync. Privacy details are available at `/privacy`.
 
 ## Scoring rules
 
@@ -81,8 +82,12 @@ Open http://localhost:3000.
 |---|---|---|
 | `GITHUB_TOKEN` | No | A GitHub personal access token. Public repositories need no scopes, so use a fine-grained token with *public repositories (read-only)*. It raises the API limit from 60 to 5,000 requests per hour. The token stays on the server. |
 | `NEXT_PUBLIC_PROJECT_REPO_URL` | No | If set, a GitHub link to your RepoLens repository appears in the navbar and footer. |
+| `AUTH_SECRET` | Vercel production | Auth.js session signing secret; use at least 32 random characters. |
+| `AUTH_GITHUB_ID` | Vercel production | GitHub OAuth App client ID. |
+| `AUTH_GITHUB_SECRET` | Vercel production | GitHub OAuth App client secret. |
+| `DATABASE_URL` | Vercel production | PostgreSQL connection URL for account history and shared request limits. |
 
-Each analysis uses 2 GitHub API calls, or 3 when the default branch name contains `/`. Without a token, that allows about 30 analyses per hour per server IP, so set `GITHUB_TOKEN` in production.
+The public analysis API allows 30 analyses per client per minute; expanded file-list requests allow 20 per minute. Limits are shared across instances when Neon is available. Each analysis uses 2 GitHub API calls, or 3 when the default branch name contains `/`. Without a GitHub token, the separate GitHub allowance is about 30 analyses per hour per server IP, so set `GITHUB_TOKEN` in production if traffic requires it.
 
 ## Scripts
 
@@ -109,7 +114,7 @@ npm start           # serve the production build
 | `INACCESSIBLE` | 403 |
 | `NOT_FOUND` (missing or private) | 404 |
 | `EMPTY_REPOSITORY` | 422 |
-| `RATE_LIMITED` | 429 |
+| `RATE_LIMITED` (GitHub) / `REQUEST_LIMITED` (RepoLens) | 429 |
 | `INTERNAL_ERROR` | 500 |
 | `NETWORK_ERROR` | 502 |
 | `UPSTREAM_UNAVAILABLE` | 503 |
@@ -122,14 +127,17 @@ Types are defined in `lib/types/index.ts`.
 - The server never fetches the URL a user enters. It extracts and validates `owner` and `repo`, then builds requests to `https://api.github.com` only.
 - Rejected input includes non-GitHub hosts, lookalike hosts, embedded credentials, custom ports, non-http schemes, GitHub site pages (`/settings`, `/orgs`, …), and invalid owner or repository names.
 - Requests time out after 10 seconds. GitHub responses are cached for 5 minutes through the Next.js data cache, and successful API responses are CDN-cacheable for 5 minutes.
-- No secrets reach the browser, and external links use `rel="noopener noreferrer"`.
+- Server-configured secrets stay on the server. An optional GitHub token entered in the form stays in page memory and is sent over HTTPS in a request header; see `/privacy`.
+- External links use `rel="noopener noreferrer"`.
 
 ## Deploying to Vercel
 
 1. Push this project to a GitHub repository.
 2. In Vercel, choose **Add New → Project** and import the repository. The Next.js defaults work without changes.
-3. Under **Settings → Environment Variables**, add `GITHUB_TOKEN`. Optionally add `NEXT_PUBLIC_PROJECT_REPO_URL`.
+3. Under **Settings → Environment Variables**, add `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, and `DATABASE_URL` for account history and shared request limits. Optionally add `GITHUB_TOKEN` and `NEXT_PUBLIC_PROJECT_REPO_URL`.
 4. Deploy. Every later push to `main` redeploys automatically.
+
+The production build checks that the four required variables are present and that `AUTH_SECRET` and `DATABASE_URL` have valid formats. If a check fails, deployment stops with the names of the settings to fix; secret values are never printed. Local and preview builds skip this production-only check.
 
 The included workflow, `.github/workflows/ci.yml`, runs lint, typecheck, tests, and build on every push and pull request.
 
@@ -146,7 +154,7 @@ The included workflow, `.github/workflows/ci.yml`, runs lint, typecheck, tests, 
 
 ## Roadmap ideas
 
-Database-backed history, README content quality checks, GitHub login for private repositories, and badge generation. The analysis engine is isolated in `lib/` so these can be added without rewriting the UI.
+README content quality checks, private repository analysis, and badge generation. The analysis engine is isolated in `lib/` so these can be added without rewriting the UI.
 
 ---
 
