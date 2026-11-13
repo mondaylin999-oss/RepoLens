@@ -14,6 +14,7 @@ type Format = "short" | "portfolio" | "linkedin" | "caseStudy" | "website" | "re
 type Audience = "recruiters" | "collaborators" | "clients";
 type TextKey = `${Audience}-${Format}`;
 type Fact = "project" | "overview" | "technology" | "demo" | "source";
+type Tone = "direct" | "conversational" | "formal";
 const FACTS: { id: Fact; label: string }[] = [
   { id: "project", label: "Project name" },
   { id: "overview", label: "Overview" },
@@ -31,6 +32,11 @@ const AUDIENCES: { id: Audience; label: string }[] = [
   { id: "collaborators", label: "Collaborators" },
   { id: "clients", label: "Clients" },
 ];
+const TONES: { id: Tone; label: string }[] = [
+  { id: "direct", label: "Direct" },
+  { id: "conversational", label: "Conversational" },
+  { id: "formal", label: "Formal" },
+];
 const FORMATS: { id: Format; label: string }[] = [
   { id: "short", label: "One sentence" },
   { id: "portfolio", label: "Portfolio entry" },
@@ -43,6 +49,7 @@ const FORMATS: { id: Format; label: string }[] = [
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
   const [format, setFormat] = useState<Format>("portfolio");
   const [audience, setAudience] = useState<Audience>("recruiters");
+  const [tone, setTone] = useState<Tone>("direct");
   const [includedFacts, setIncludedFacts] = useState<Record<Fact, boolean>>({ project: true, overview: true, technology: true, demo: true, source: true });
   const generated: Record<Format, string> = {
     short: `${repo.name}: ${cleanDescription(repo.description) ?? PLACEHOLDERS.overview}`,
@@ -58,8 +65,11 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
   const textKey: TextKey = `${audience}-${format}`;
-  const text = filterFacts(texts[textKey], repo, includedFacts);
-  const originalText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
+  const baseText = filterFacts(texts[textKey], repo, includedFacts);
+  const tonePrefix = tone === "direct" ? "" : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
+  const text = tonePrefix ? `${tonePrefix}\n\n${baseText}` : baseText;
+  const originalBaseText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
+  const originalText = tonePrefix ? `${tonePrefix}\n\n${originalBaseText}` : originalBaseText;
   const allFactsIncluded = FACTS.every((fact) => includedFacts[fact.id]);
   const edited = texts[textKey] !== originalText || !allFactsIncluded;
 
@@ -85,6 +95,12 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             <label htmlFor="description-audience" className="mr-2 text-xs text-muted-foreground">Write for</label>
             <select id="description-audience" value={audience} onChange={(event) => setAudience(event.target.value as Audience)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {AUDIENCES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="description-tone" className="mr-2 text-xs text-muted-foreground">Tone</label>
+            <select id="description-tone" value={tone} onChange={(event) => setTone(event.target.value as Tone)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {TONES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
             </select>
           </div>
           <div role="tablist" aria-label="Description format" className="inline-flex shrink-0 rounded-lg bg-muted p-1">
@@ -129,7 +145,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           id="description-text"
           role="tabpanel"
           value={text}
-          onChange={(e) => setTexts((t) => ({ ...t, [textKey]: e.target.value }))}
+          onChange={(e) => setTexts((t) => ({ ...t, [textKey]: tonePrefix ? e.target.value.replace(`${tonePrefix}\n\n`, "") : e.target.value }))}
           rows={10}
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -138,7 +154,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             {copy === "copied" ? "Copied!" : "Copy Description"}
           </Button>
           <Button variant="outline" disabled={!edited} onClick={() => {
-            setTexts((t) => ({ ...t, [textKey]: originalText }));
+            setTexts((t) => ({ ...t, [textKey]: originalBaseText }));
             setIncludedFacts({ project: true, overview: true, technology: true, demo: true, source: true });
           }}>
             <RotateCcw /> Reset
