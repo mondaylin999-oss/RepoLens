@@ -22,11 +22,15 @@ type State =
 
 export function AnalyzeView({ url }: { url: string }) {
   const [state, setState] = useState<State>(url ? { status: "loading" } : { status: "idle" });
+  const [loadingMessage, setLoadingMessage] = useState("Connecting to GitHub…");
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!url) return;
     const controller = new AbortController();
+    setLoadingMessage("Connecting to GitHub…");
+    const detailsTimer = window.setTimeout(() => setLoadingMessage("Reading repository details…"), 900);
+    const filesTimer = window.setTimeout(() => setLoadingMessage("Checking repository files and preparing your results…"), 2400);
     fetch(`/api/analyze?url=${encodeURIComponent(url)}`, { signal: controller.signal })
       .then(async (res) => {
         let body: AnalyzeResponse;
@@ -49,7 +53,11 @@ export function AnalyzeView({ url }: { url: string }) {
           },
         });
       });
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearTimeout(detailsTimer);
+      window.clearTimeout(filesTimer);
+    };
   }, [url, attempt]);
 
   const retry = () => {
@@ -67,7 +75,7 @@ export function AnalyzeView({ url }: { url: string }) {
 
       <div aria-live="polite" aria-busy={state.status === "loading"}>
         {state.status === "idle" && <EmptyState />}
-        {state.status === "loading" && <AnalysisSkeleton />}
+        {state.status === "loading" && <AnalysisSkeleton message={loadingMessage} />}
         {state.status === "error" && <ErrorState error={state.error} onRetry={retry} />}
         {state.status === "success" && <Results data={state.data} submittedUrl={url} />}
       </div>

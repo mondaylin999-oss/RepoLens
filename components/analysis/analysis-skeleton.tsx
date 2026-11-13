@@ -1,10 +1,14 @@
+import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function AnalysisSkeleton() {
+export function AnalysisSkeleton({ message }: { message: string }) {
   return (
     <div className="space-y-6">
-      <span className="sr-only">Analyzing repository…</span>
+      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 aria-hidden="true" className="size-4 animate-spin text-primary" />
+        {message}
+      </p>
       <Card>
         <div className="flex gap-5 p-6">
           <Skeleton className="size-16 rounded-xl" />
