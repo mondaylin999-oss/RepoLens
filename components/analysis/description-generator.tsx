@@ -65,11 +65,16 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${generated[item.id]}`])),
   ) as Record<TextKey, string>);
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
+  const [copiedFormat, setCopiedFormat] = useState<Format | null>(null);
 
   const textKey: TextKey = `${audience}-${format}`;
-  const baseText = filterFacts(texts[textKey], repo, includedFacts);
   const tonePrefix = tone === "direct" ? "" : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
-  const text = tonePrefix ? `${tonePrefix}\n\n${baseText}` : baseText;
+  const getFormatText = (targetFormat: Format) => {
+    const targetKey: TextKey = `${audience}-${targetFormat}`;
+    const base = filterFacts(texts[targetKey], repo, includedFacts);
+    return tonePrefix ? `${tonePrefix}\n\n${base}` : base;
+  };
+  const text = getFormatText(format);
   const activeCompareFormat = compareFormat === format ? FORMATS.find((item) => item.id !== format)!.id : compareFormat;
   const compareKey: TextKey = `${audience}-${activeCompareFormat}`;
   const compareBaseText = filterFacts(texts[compareKey], repo, includedFacts);
@@ -88,6 +93,17 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
       setCopy("failed");
     }
     setTimeout(() => setCopy("idle"), 2000);
+  }
+
+  async function onCopyFormat(targetFormat: Format) {
+    try {
+      await navigator.clipboard.writeText(getFormatText(targetFormat));
+      setCopiedFormat(targetFormat);
+    } catch {
+      setCopiedFormat(null);
+      setCopy("failed");
+    }
+    setTimeout(() => setCopiedFormat(null), 2000);
   }
 
   return (
@@ -207,6 +223,17 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             {copy === "copied" && "Description copied to clipboard."}
             {copy === "failed" && <span className="text-danger">Couldn&apos;t access the clipboard — select the text and copy it manually.</span>}
           </span>
+        </div>
+        <div className="mt-4 border-t pt-3">
+          <p className="mb-2 text-xs font-medium text-muted-foreground">Copy any format</p>
+          <div className="flex flex-wrap gap-2">
+            {FORMATS.map((item) => (
+              <Button key={item.id} type="button" variant="outline" size="sm" aria-label={`Copy ${item.label}`} onClick={() => onCopyFormat(item.id)}>
+                {copiedFormat === item.id ? <Check /> : <Copy />}
+                {copiedFormat === item.id ? "Copied" : item.label}
+              </Button>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
