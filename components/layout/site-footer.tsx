@@ -18,6 +18,7 @@ export function SiteFooter() {
           <span>{text("footerTagline")}</span>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:text-foreground">{text("privacy")}</Link>
           <Link href="/status" className="hover:text-foreground">{text("GitHub status")}</Link>
           {PROJECT_REPO_URL && (
             <a href={PROJECT_REPO_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-foreground">

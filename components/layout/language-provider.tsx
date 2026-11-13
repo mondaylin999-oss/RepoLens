@@ -16,6 +16,7 @@ const MESSAGES = {
     toggleNavigation: "Toggle navigation menu",
     toggleTheme: "Toggle dark mode",
     github: "GitHub",
+    privacy: "Privacy",
     footerTagline: "Make your GitHub projects portfolio-ready.",
   },
   my: {
@@ -28,6 +29,7 @@ const MESSAGES = {
     toggleNavigation: "လမ်းညွှန်မီနူးကို ဖွင့်/ပိတ်ရန်",
     toggleTheme: "အမှောင်/အလင်း အပြင်အဆင် ပြောင်းရန်",
     github: "GitHub",
+    privacy: "ကိုယ်ရေးအချက်အလက်",
     footerTagline: "သင့် GitHub ပရောဂျက်များကို Portfolio အတွက် အဆင်သင့်ပြင်ဆင်ပါ။",
   },
 } as const;
