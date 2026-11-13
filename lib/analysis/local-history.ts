@@ -15,6 +15,14 @@ export interface SavedRepository {
   repository: string;
   url: string;
   savedAt: string;
+  scoreHistory?: SavedScoreSnapshot[];
+}
+
+export interface SavedScoreSnapshot {
+  score: number | null;
+  earned: number;
+  complete: boolean;
+  analyzedAt: string;
 }
 
 export function readAnalysisHistory(): LocalAnalysisHistoryEntry[] {

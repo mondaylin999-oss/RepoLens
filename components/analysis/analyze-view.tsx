@@ -13,7 +13,7 @@ import { RecommendationList } from "./recommendations";
 import { DescriptionGenerator } from "./description-generator";
 import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
-import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory } from "@/lib/analysis/local-history";
+import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
 
 type State =
@@ -82,6 +82,28 @@ export function AnalyzeView({ url }: { url: string }) {
     }
   }, [state]);
 
+  useEffect(() => {
+    if (state.status !== "success") return;
+    try {
+      const data = state.data;
+      const saved = readSavedRepositories();
+      const index = saved.findIndex((item) => item.url === data.repo.htmlUrl);
+      if (index < 0) return;
+      const entry = saved[index];
+      const snapshot = {
+        score: data.score.score,
+        earned: data.score.earned,
+        complete: data.score.complete,
+        analyzedAt: data.analyzedAt,
+      };
+      const scoreHistory = [...(entry.scoreHistory ?? []).filter((item) => item.analyzedAt !== snapshot.analyzedAt), snapshot].slice(-12);
+      saved[index] = { ...entry, scoreHistory };
+      window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify(saved));
+    } catch {
+      // Keep the result visible if browser storage is unavailable.
+    }
+  }, [state]);
+
   const retry = () => {
     setState({ status: "loading" });
     setAttempt((a) => a + 1);
@@ -143,7 +165,11 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           </a>
         </p>
         <div className="flex flex-wrap gap-2">
-          <SaveRepositoryButton repository={data.repo.fullName} url={data.repo.htmlUrl} />
+          <SaveRepositoryButton
+            repository={data.repo.fullName}
+            url={data.repo.htmlUrl}
+            snapshot={{ score: data.score.score, earned: data.score.earned, complete: data.score.complete, analyzedAt: data.analyzedAt }}
+          />
           <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
             <Link href="/analyze">Analyze another repository</Link>
           </Button>
