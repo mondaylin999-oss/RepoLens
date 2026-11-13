@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Archive, CircleDot, Clock, ExternalLink, GitFork, Star } from "lucide-react";
+import { Archive, CircleDot, Clock, ExternalLink, GitBranch, GitFork, Star } from "lucide-react";
 import type { RepoMetadata } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ export function RepoOverview({ repo }: { repo: RepoMetadata }) {
               {repo.name}
             </a>
             {repo.language && <Badge>{repo.language}</Badge>}
+            <Badge variant="outline"><GitBranch className="size-3" />Branch: {repo.defaultBranch}</Badge>
             {repo.archived && <Badge variant="warning"><Archive className="size-3" />Archived</Badge>}
             {repo.isFork && <Badge variant="muted"><GitFork className="size-3" />Fork</Badge>}
           </h2>
