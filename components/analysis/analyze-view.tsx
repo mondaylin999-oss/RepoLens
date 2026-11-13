@@ -177,6 +177,13 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
     },
   ];
 
+  function saveAsPdf() {
+    const previousTitle = document.title;
+    document.title = `${data.repo.fullName} - RepoLens analysis`;
+    window.addEventListener("afterprint", () => { document.title = previousTitle; }, { once: true });
+    window.print();
+  }
+
   return (
     <div className="print-report animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -188,6 +195,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
         </p>
         <div className="no-print flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Print report</Button>
+          <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>Save as PDF</Button>
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
