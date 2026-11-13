@@ -14,6 +14,7 @@ import { DescriptionGenerator } from "./description-generator";
 import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
 import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory } from "@/lib/analysis/local-history";
+import { SaveRepositoryButton } from "./save-repository-button";
 
 type State =
   | { status: "idle" }
@@ -141,9 +142,12 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
             {submittedUrl}
           </a>
         </p>
-        <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
-          <Link href="/analyze">Analyze another repository</Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <SaveRepositoryButton repository={data.repo.fullName} url={data.repo.htmlUrl} />
+          <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
+            <Link href="/analyze">Analyze another repository</Link>
+          </Button>
+        </div>
       </div>
       <dl aria-label="Analysis summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {summary.map((item) => (

@@ -3,6 +3,7 @@ import { RepoUrlForm } from "@/components/github/repo-url-form";
 import { ThemePreview } from "@/components/layout/theme-preview";
 import { FirstVisitGuide } from "@/components/layout/first-visit-guide";
 import { RecentAnalyses } from "@/components/analysis/recent-analyses";
+import { SavedRepositories } from "@/components/analysis/saved-repositories";
 import { CHECK_DEFINITIONS } from "@/lib/analysis/checks";
 
 const STEPS = [
@@ -43,6 +44,7 @@ export default function HomePage() {
 
       <FirstVisitGuide />
       <RecentAnalyses />
+      <SavedRepositories />
       <ThemePreview />
 
       <section id="how-it-works" className="scroll-mt-20 border-b">
