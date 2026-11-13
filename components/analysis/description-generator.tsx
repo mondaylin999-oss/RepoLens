@@ -48,6 +48,8 @@ const FORMATS: { id: Format; label: string }[] = [
 
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
   const [format, setFormat] = useState<Format>("portfolio");
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareFormat, setCompareFormat] = useState<Format>("linkedin");
   const [audience, setAudience] = useState<Audience>("recruiters");
   const [tone, setTone] = useState<Tone>("direct");
   const [includedFacts, setIncludedFacts] = useState<Record<Fact, boolean>>({ project: true, overview: true, technology: true, demo: true, source: true });
@@ -68,6 +70,10 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
   const baseText = filterFacts(texts[textKey], repo, includedFacts);
   const tonePrefix = tone === "direct" ? "" : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
   const text = tonePrefix ? `${tonePrefix}\n\n${baseText}` : baseText;
+  const activeCompareFormat = compareFormat === format ? FORMATS.find((item) => item.id !== format)!.id : compareFormat;
+  const compareKey: TextKey = `${audience}-${activeCompareFormat}`;
+  const compareBaseText = filterFacts(texts[compareKey], repo, includedFacts);
+  const compareText = tonePrefix ? `${tonePrefix}\n\n${compareBaseText}` : compareBaseText;
   const sentences = text.split(/(?<=[.!?])\s+|\n+/).map((sentence) => sentence.trim()).filter(Boolean);
   const originalBaseText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
   const originalText = tonePrefix ? `${tonePrefix}\n\n${originalBaseText}` : originalBaseText;
@@ -141,14 +147,40 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             Some details aren&apos;t available on GitHub, so they&apos;re marked with <code className="font-mono">[brackets]</code>. Replace them with your own words.
           </p>
         )}
-        <label htmlFor="description-text" className="sr-only">Portfolio description text</label>
-        <Textarea
-          id="description-text"
-          role="tabpanel"
-          value={text}
-          onChange={(e) => setTexts((t) => ({ ...t, [textKey]: tonePrefix ? e.target.value.replace(`${tonePrefix}\n\n`, "") : e.target.value }))}
-          rows={10}
-        />
+        <label className="mb-3 inline-flex cursor-pointer items-center gap-2 text-sm">
+          <input type="checkbox" checked={compareMode} onChange={(event) => setCompareMode(event.target.checked)} className="size-4 accent-primary" />
+          Compare two formats side by side
+        </label>
+        {compareMode && (
+          <label htmlFor="description-compare-format" className="mb-3 ml-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
+            Compare with
+            <select id="description-compare-format" value={activeCompareFormat} onChange={(event) => setCompareFormat(event.target.value as Format)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {FORMATS.filter((item) => item.id !== format).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+            </select>
+          </label>
+        )}
+        <div className={compareMode ? "grid gap-4 lg:grid-cols-2" : ""}>
+          <div>
+            <label htmlFor="description-text" className="mb-1 block text-xs font-medium text-muted-foreground">{FORMATS.find((item) => item.id === format)?.label}</label>
+            <Textarea
+              id="description-text"
+              value={text}
+              onChange={(event) => setTexts((current) => ({ ...current, [textKey]: tonePrefix ? event.target.value.replace(`${tonePrefix}\n\n`, "") : event.target.value }))}
+              rows={10}
+            />
+          </div>
+          {compareMode && (
+            <div>
+              <label htmlFor="description-compare-text" className="mb-1 block text-xs font-medium text-muted-foreground">{FORMATS.find((item) => item.id === activeCompareFormat)?.label}</label>
+              <Textarea
+                id="description-compare-text"
+                value={compareText}
+                onChange={(event) => setTexts((current) => ({ ...current, [compareKey]: tonePrefix ? event.target.value.replace(`${tonePrefix}\n\n`, "") : event.target.value }))}
+                rows={10}
+              />
+            </div>
+          )}
+        </div>
         <details className="mt-3 rounded-lg border px-3 py-2">
           <summary className="cursor-pointer text-sm font-medium">See source facts for each sentence</summary>
           <ol className="mt-3 space-y-3">
