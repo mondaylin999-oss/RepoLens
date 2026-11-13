@@ -13,6 +13,7 @@ import { RecommendationList } from "./recommendations";
 import { DescriptionGenerator } from "./description-generator";
 import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
+import { ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory } from "@/lib/analysis/local-history";
 
 type State =
   | { status: "idle" }
@@ -59,6 +60,26 @@ export function AnalyzeView({ url }: { url: string }) {
       window.clearTimeout(filesTimer);
     };
   }, [url, attempt]);
+
+  useEffect(() => {
+    if (state.status !== "success") return;
+    try {
+      if (window.localStorage.getItem(HISTORY_ENABLED_KEY) !== "true") return;
+      const data = state.data;
+      const entry = {
+        repository: data.repo.fullName,
+        url: data.repo.htmlUrl,
+        score: data.score.score,
+        earned: data.score.earned,
+        complete: data.score.complete,
+        analyzedAt: data.analyzedAt,
+      };
+      const next = [entry, ...readAnalysisHistory().filter((item) => item.url !== entry.url)].slice(0, 10);
+      window.localStorage.setItem(ANALYSIS_HISTORY_KEY, JSON.stringify(next));
+    } catch {
+      // Analysis results remain available even when browser storage is disabled.
+    }
+  }, [state]);
 
   const retry = () => {
     setState({ status: "loading" });
