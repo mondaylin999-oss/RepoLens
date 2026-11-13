@@ -9,7 +9,6 @@ import { GitHubError } from "./errors";
  */
 const API_ORIGIN = "https://api.github.com";
 const TIMEOUT_MS = 10_000;
-const CACHE_SECONDS = 300;
 
 type FetchLike = typeof fetch;
 
@@ -142,7 +141,7 @@ export class GitHubClient {
           const res = await this.fetchImpl(url, {
             headers,
             signal: controller.signal,
-            ...(this.token ? { cache: "no-store" } : { next: { revalidate: CACHE_SECONDS } }),
+            cache: "no-store",
           } as RequestInit);
           if (res.ok) return { data: await res.json() };
           return { error: await toError(res, what, Boolean(this.token)) };

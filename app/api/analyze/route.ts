@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const tree = await client.getTree(owner, repo, meta);
     const body: AnalyzeResponse = { ok: true, data: analyzeRepository(meta, tree) };
     return NextResponse.json(body, {
-      headers: { "Cache-Control": requestToken.token ? "no-store" : "public, s-maxage=300, stale-while-revalidate=600" },
+      headers: { "Cache-Control": requestToken.token || tree.status !== "complete" ? "no-store" : "public, s-maxage=300, stale-while-revalidate=600" },
     });
   } catch (err) {
     if (err instanceof GitHubError) {

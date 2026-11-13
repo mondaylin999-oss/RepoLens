@@ -14,7 +14,7 @@ export async function GET() {
   try {
     const response = await fetch(GITHUB_STATUS_URL, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 60 },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) throw new Error("GitHub status is temporarily unavailable.");
