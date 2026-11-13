@@ -15,6 +15,7 @@ export interface SavedRepository {
   repository: string;
   url: string;
   savedAt: string;
+  lastRefreshedAt?: string;
   scoreHistory?: SavedScoreSnapshot[];
 }
 

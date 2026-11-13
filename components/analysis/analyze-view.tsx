@@ -97,7 +97,7 @@ export function AnalyzeView({ url }: { url: string }) {
         analyzedAt: data.analyzedAt,
       };
       const scoreHistory = [...(entry.scoreHistory ?? []).filter((item) => item.analyzedAt !== snapshot.analyzedAt), snapshot].slice(-12);
-      saved[index] = { ...entry, scoreHistory };
+      saved[index] = { ...entry, lastRefreshedAt: snapshot.analyzedAt, scoreHistory };
       window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify(saved));
     } catch {
       // Keep the result visible if browser storage is unavailable.

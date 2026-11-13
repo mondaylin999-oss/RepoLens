@@ -20,7 +20,7 @@ export function SaveRepositoryButton({ repository, url, snapshot }: { repository
         return;
       }
       window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify([
-        { repository, url, savedAt: new Date().toISOString(), scoreHistory: [snapshot] },
+        { repository, url, savedAt: new Date().toISOString(), lastRefreshedAt: snapshot.analyzedAt, scoreHistory: [snapshot] },
         ...current,
       ]));
       setSaved(true);

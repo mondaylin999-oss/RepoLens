@@ -25,6 +25,11 @@ export function SavedRepositories() {
               <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
                 {item.repository}
               </a>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {item.lastRefreshedAt
+                  ? `Last refreshed ${new Date(item.lastRefreshedAt).toLocaleString()}`
+                  : `Saved ${new Date(item.savedAt).toLocaleDateString()}`}
+              </p>
               <ScoreHistoryChart repository={item.repository} snapshots={item.scoreHistory ?? []} />
             </li>
           ))}
