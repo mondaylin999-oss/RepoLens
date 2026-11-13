@@ -31,6 +31,15 @@ export function ErrorState({ error, onRetry }: { error: ApiError; onRetry: () =>
           {t("The limit resets at")} <time dateTime={error.retryAt}>{new Date(error.retryAt).toLocaleTimeString()}</time>.
         </p>
       )}
+      {error.code === "RATE_LIMITED" && (
+        <div className="mt-4 max-w-lg rounded-lg border bg-muted/40 px-4 py-3 text-left text-sm text-muted-foreground">
+          <p>{t("Without a token, GitHub allows 60 public API requests per hour for each server IP. Everyone using this RepoLens deployment shares that allowance, so busy periods can use it up early.")}</p>
+          <p className="mt-2">{t("Wait until the reset time above, or add your optional read-only GitHub token in the form above. GitHub's authenticated limit is typically 5,000 requests per hour for a personal account. Avoid repeated retries before the reset.")}</p>
+          <a className="mt-2 inline-block text-primary underline underline-offset-4" href="https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api" target="_blank" rel="noopener noreferrer">
+            {t("Read GitHub's rate-limit details")}
+          </a>
+        </div>
+      )}
       {meta.retry && (
         <Button variant="outline" className="mt-6" onClick={onRetry}><RefreshCw /> {t("Try again")}</Button>
       )}

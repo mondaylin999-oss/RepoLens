@@ -156,7 +156,7 @@ async function toError(res: Response, what: string, authenticated: boolean): Pro
     else if (retryAfter && /^\d+$/.test(retryAfter)) retryAt = new Date(Date.now() + Number(retryAfter) * 1000).toISOString();
     return new GitHubError(
       "RATE_LIMITED",
-      "GitHub's API rate limit has been reached. Please wait a few minutes and try again.",
+      "GitHub's API rate limit has been reached. Please wait until it resets before trying again.",
       429,
       retryAt,
     );
