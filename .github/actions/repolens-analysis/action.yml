@@ -9,10 +9,6 @@ inputs:
     description: Optional minimum score from 0 to 100. The action fails after publishing the summary when the score is lower.
     required: false
     default: ''
-  api-url:
-    description: RepoLens version 1 analysis API endpoint.
-    required: false
-    default: https://repo-lens-free-frame.vercel.app/api/v1/analyze
 outputs:
   score:
     description: Readiness score from 0 to 100, or empty when analysis is incomplete.
@@ -25,5 +21,5 @@ runs:
       env:
         REPOLENS_REPOSITORY: ${{ inputs.repository }}
         REPOLENS_MINIMUM_SCORE: ${{ inputs.minimum-score }}
-        REPOLENS_API_URL: ${{ inputs.api-url }}
+        GITHUB_TOKEN: ${{ github.token }}
       run: node "${{ github.action_path }}/run.mjs"

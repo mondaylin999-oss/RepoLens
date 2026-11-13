@@ -92,7 +92,7 @@ The public analysis API allows 30 analyses per client per minute; expanded file-
 
 ## GitHub Action
 
-The composite action at `.github/actions/repolens-analysis` analyzes a public GitHub repository and adds its readiness score, check evidence, and top recommendations to the GitHub Actions job summary. This repository also runs it weekly and on demand in `.github/workflows/repolens-analysis.yml`.
+The composite action at `.github/actions/repolens-analysis` analyzes a public GitHub repository and adds its readiness score and check evidence to the GitHub Actions job summary. It reads repository metadata and file paths directly from GitHub's API, without depending on the RepoLens website being reachable. This repository also runs it on pushes, weekly, and on demand in `.github/workflows/repolens-analysis.yml`.
 
 Use the action from a workflow in another repository:
 
@@ -114,7 +114,7 @@ jobs:
           # minimum-score: 70
 ```
 
-The repository input defaults to `${{ github.repository }}`. It accepts `owner/name` or a GitHub URL; private repositories are not supported. The action uses the public RepoLens API, so it needs no GitHub token or other secret. Its optional `minimum-score` input accepts a whole number from 0 to 100. A low or incomplete score is reported in the summary, then fails the action only when a minimum is configured. Detected test files are not executed.
+The repository input defaults to the current repository. It accepts `owner/name` or a GitHub URL; private repositories are not supported. The action uses the workflow's built-in, read-only `GITHUB_TOKEN`, so no personal access token or other secret is needed. Its optional `minimum-score` input accepts a whole number from 0 to 100. A low or incomplete score is reported in the summary, then fails the action only when a minimum is configured. Detected test files are not executed.
 
 ## Scripts
 
