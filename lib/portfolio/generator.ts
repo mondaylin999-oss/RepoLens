@@ -60,7 +60,10 @@ export function localizeDescriptionDraft(draft: string, language: DescriptionLan
     if (line.startsWith("Source code: ")) return `မူရင်း code: ${line.slice("Source code: ".length)}`;
     if (line.startsWith("Source: ")) return `အရင်းအမြစ်: ${line.slice("Source: ".length)}`;
     if (line.startsWith("Demo: ")) return `သရုပ်ပြ: ${line.slice("Demo: ".length)}`;
-    if (line.startsWith("Repository metadata lists: ")) return `Repository metadata တွင် ဖော်ပြထားသော နည်းပညာများ: ${line.slice("Repository metadata lists: ".length)}`;
+    if (line.startsWith("Repository metadata lists: ")) return `Repository metadata မှ ဖော်ပြထားသော နည်းပညာများ: ${line.slice("Repository metadata lists: ".length)}`;
+    if (line.includes("[Explain your design and implementation choices.]")) {
+      return line.replace("[Explain your design and implementation choices.]", BURMESE_DRAFT_LINES["[Explain your design and implementation choices.]"]);
+    }
     const writtenTopics = line.match(/^Written primarily in (.+)\. Topics: (.+)\.$/);
     if (writtenTopics) return `အဓိကအားဖြင့် ${writtenTopics[1]} ဖြင့် ရေးသားထားသည်။ ခေါင်းစဉ်များ: ${writtenTopics[2]}။`;
     const writtenLanguage = line.match(/^Written primarily in (.+)\.$/);

@@ -370,7 +370,7 @@ function filterFacts(text: string, repo: RepoMetadata, included: Record<Fact, bo
     const trimmed = line.trim();
     if (!included.project && (trimmed === repo.name || trimmed === `# ${repo.name}` || trimmed.startsWith(`Project: ${repo.name}`) || trimmed.startsWith(`${repo.name} |`))) return false;
     if (!included.overview && (trimmed.startsWith("Overview:") || trimmed.startsWith("အကျဉ်းချုပ်:") || trimmed === "## Overview" || trimmed === "## အကျဉ်းချုပ်" || (overview && trimmed.includes(overview)))) return false;
-    if (!included.technology && /^(Primary language:|အဓိက ပရိုဂရမ်းမင်းဘာသာစကား:|Technology:|နည်းပညာ:|Technologies and topics:|နည်းပညာနှင့် ခေါင်းစဉ်များ:|Topics:|ခေါင်းစဉ်များ:|Written primarily in|အဓိကအားဖြင့်|Repository metadata lists:|Repository metadata တွင် ဖော်ပြထားသော နည်းပညာများ:)/.test(trimmed)) return false;
+    if (!included.technology && /^(Primary language:|အဓိက ပရိုဂရမ်းမင်းဘာသာစကား:|Technology:|နည်းပညာ:|Technologies and topics:|နည်းပညာနှင့် ခေါင်းစဉ်များ:|Topics:|ခေါင်းစဉ်များ:|Written primarily in|အဓိကအားဖြင့်|Repository metadata lists:|Repository metadata မှ ဖော်ပြထားသော နည်းပညာများ:)/.test(trimmed)) return false;
     if (!included.demo && repo.homepage && trimmed.includes(repo.homepage)) return false;
     if (!included.source && trimmed.includes(repo.htmlUrl)) return false;
     return true;
