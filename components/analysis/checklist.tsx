@@ -6,15 +6,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { StatusIcon, STATUS_LABEL } from "./status-icon";
 
-export function Checklist({ checks, repoUrl, defaultBranch }: { checks: CheckResult[]; repoUrl: string; defaultBranch: string }) {
+export function Checklist({
+  checks,
+  repoUrl,
+  defaultBranch,
+  fileCount,
+  treeStatus,
+}: {
+  checks: CheckResult[];
+  repoUrl: string;
+  defaultBranch: string;
+  fileCount: number;
+  treeStatus: "complete" | "truncated" | "unavailable";
+}) {
   const passed = checks.filter((c) => c.status === "pass").length;
+  const treeStatusLabel = treeStatus === "complete" ? "complete file list" : treeStatus === "truncated" ? "partial file list" : "file list unavailable";
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div>
           <CardTitle>Analysis checklist</CardTitle>
           <CardDescription>
-            Each item shows the evidence RepoLens found. Test files are detected, but RepoLens does not run them.
+            {fileCount.toLocaleString()} files returned · {treeStatusLabel}. File-based checks use this list. Each item shows its evidence.
+            Test files are detected, but RepoLens does not run them.
           </CardDescription>
         </div>
         <Badge variant="muted" className="shrink-0 tabular-nums">{passed}/{checks.length} detected</Badge>
