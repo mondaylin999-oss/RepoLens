@@ -3,6 +3,7 @@ import type { Recommendation, RepoMetadata } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "./copy-button";
+import { LicenseGoalPicker } from "./license-goal-picker";
 
 const PRIORITY = {
   high: { label: "High impact", variant: "danger" },
@@ -68,6 +69,7 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
                     </dd>
                   </div>
                 </dl>
+                {r.checkId === "license" && <LicenseGoalPicker />}
               </li>
             ))}
           </ol>
