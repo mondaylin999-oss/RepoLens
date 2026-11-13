@@ -62,6 +62,7 @@ export function ShareCardButton({ repository, score, earned, complete, url }: {
     context.fillStyle = "rgba(255, 255, 255, .65)";
     context.font = "400 19px system-ui, sans-serif";
     context.fillText("Based on public GitHub repository details", 72, 588);
+    context.fillText("Portfolio presentation only · Not a code quality or security measure", 72, 613);
 
     canvas.toBlob((blob) => {
       if (blob) {

@@ -224,6 +224,9 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       "## Recommendations",
       "",
       ...recommendationLines,
+      "## About this score",
+      "",
+      "The readiness score measures portfolio presentation only. It does not measure code quality or security.",
     ].join("\n");
     const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
     const objectUrl = URL.createObjectURL(blob);
@@ -248,6 +251,8 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
     ...(data.recommendations.length
       ? data.recommendations.flatMap((recommendation) => [`- ${recommendation.title}`, ...recommendation.howToImprove.map((step) => `  ${step}`)])
       : ["- No improvement steps were suggested for this analysis."]),
+    "",
+    "Note: This readiness score measures portfolio presentation only. It does not measure code quality or security.",
   ].join("\n");
   const shareParams = new URLSearchParams({ url: data.repo.htmlUrl });
   if (!includeScoreInShare) shareParams.set("view", "checklist");
@@ -339,7 +344,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
       <DescriptionGenerator description={data.description} repo={data.repo} />
       <p className="text-xs text-muted-foreground">
         <Info className="mr-1.5 inline size-3.5 align-[-2px]" />
-        Based on public GitHub repository data. Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}
+        Portfolio presentation only; this score does not measure code quality or security. Based on public GitHub repository data. Analyzed {tree.fileCount.toLocaleString()} files on the <code className="font-mono">{data.repo.defaultBranch}</code> branch ·{" "}
         {new Date(data.analyzedAt).toLocaleString()} · Results may be cached for up to 5 minutes.
       </p>
     </div>
