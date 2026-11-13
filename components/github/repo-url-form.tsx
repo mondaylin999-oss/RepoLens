@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GitHubIcon } from "@/components/layout/github-icon";
@@ -64,8 +64,26 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
             }}
             aria-invalid={!!error}
             aria-describedby={error ? `${id}-error` : undefined}
-            className={cn("pl-10", lg && "h-12 border-0 pl-11 text-base shadow-none focus-visible:ring-0 sm:text-[15px]")}
+            className={cn("pl-10 pr-10", lg && "h-12 border-0 pl-11 text-base shadow-none focus-visible:ring-0 sm:text-[15px]")}
           />
+          {value && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              disabled={busy}
+              aria-label="Clear repository URL"
+              className="absolute right-1 top-1/2 size-8 -translate-y-1/2 text-muted-foreground"
+              onClick={() => {
+                setValue("");
+                setError(null);
+                setSelectedExample(null);
+                document.getElementById(id)?.focus();
+              }}
+            >
+              <X />
+            </Button>
+          )}
         </div>
         <Button type="submit" size={lg ? "lg" : "default"} disabled={busy} className={cn(lg && "rounded-xl")}>
           {busy ? <Loader2 className="animate-spin" /> : null}
