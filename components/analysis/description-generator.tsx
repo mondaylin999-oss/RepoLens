@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import type { RepoMetadata } from "@/lib/types";
 import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
 
-type Format = "short" | "portfolio" | "linkedin" | "caseStudy";
+type Format = "short" | "portfolio" | "linkedin" | "caseStudy" | "website" | "resume";
 type Audience = "recruiters" | "collaborators" | "clients";
 type TextKey = `${Audience}-${Format}`;
 const AUDIENCE_LABELS: Record<Audience, string> = {
@@ -28,6 +28,8 @@ const FORMATS: { id: Format; label: string }[] = [
   { id: "portfolio", label: "Portfolio entry" },
   { id: "linkedin", label: "LinkedIn project" },
   { id: "caseStudy", label: "Case study" },
+  { id: "website", label: "Personal website" },
+  { id: "resume", label: "Résumé" },
 ];
 
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
@@ -38,6 +40,8 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     portfolio: description.portfolio,
     linkedin: description.linkedin,
     caseStudy: caseStudyDraft(repo),
+    website: websiteSummary(repo),
+    resume: resumeSummary(repo),
   };
   const [texts, setTexts] = useState<Record<TextKey, string>>(() => Object.fromEntries(
     AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${generated[item.id]}`])),
@@ -147,4 +151,24 @@ function caseStudyDraft(repo: RepoMetadata): string {
   if (repo.homepage) lines.push(`Demo: ${repo.homepage}`);
   lines.push(`Source: ${repo.htmlUrl}`);
   return lines.join("\n");
+}
+
+function websiteSummary(repo: RepoMetadata): string {
+  const lines = [repo.name, "", cleanDescription(repo.description) ?? PLACEHOLDERS.overview];
+  const facts = [repo.language ? `Primary language: ${repo.language}.` : null, repo.topics.length ? `Topics: ${repo.topics.join(", ")}.` : null]
+    .filter((fact): fact is string => Boolean(fact));
+  if (facts.length) lines.push("", ...facts);
+  if (repo.homepage) lines.push("", `Live demo: ${repo.homepage}`);
+  lines.push("", `Source code: ${repo.htmlUrl}`);
+  return lines.join("\n");
+}
+
+function resumeSummary(repo: RepoMetadata): string {
+  const facts = [
+    cleanDescription(repo.description) ?? PLACEHOLDERS.overview,
+    repo.language ? `Primary language: ${repo.language}.` : null,
+    repo.topics.length ? `Technologies and topics: ${repo.topics.join(", ")}.` : null,
+    repo.homepage ? `Live demo: ${repo.homepage}` : null,
+  ].filter(Boolean);
+  return [`${repo.name} | ${repo.language ?? "Project"}`, ...facts.map((fact) => `• ${fact}`), `• Source: ${repo.htmlUrl}`].join("\n");
 }
