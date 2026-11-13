@@ -4,10 +4,23 @@ import { GitHubClient } from "@/lib/github/client";
 import { getFileMatches } from "@/lib/analysis/checks";
 import type { CheckId } from "@/lib/types";
 import { readGitHubToken } from "@/lib/github/request-token";
+import { recordApiMetric } from "@/lib/observability/api-metrics";
 
 const FILE_CHECKS = new Set<CheckId>(["readme", "license", "gitignore", "tests", "ci"]);
 
 export async function GET(request: NextRequest) {
+  const startedAt = performance.now();
+  let status = 500;
+  try {
+    const response = await handleFileListRequest(request);
+    status = response.status;
+    return response;
+  } finally {
+    recordApiMetric("analysis-files", status, startedAt);
+  }
+}
+
+async function handleFileListRequest(request: NextRequest) {
   const parsed = parseGitHubRepoUrl(request.nextUrl.searchParams.get("url") ?? "");
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400, headers: { "Cache-Control": "no-store" } });
 

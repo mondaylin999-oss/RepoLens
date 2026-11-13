@@ -5,8 +5,21 @@ import { GitHubError, HTTP_STATUS } from "@/lib/github/errors";
 import { analyzeRepository } from "@/lib/analysis/analyze";
 import type { AnalyzeResponse, ApiError } from "@/lib/types";
 import { readGitHubToken } from "@/lib/github/request-token";
+import { recordApiMetric } from "@/lib/observability/api-metrics";
 
 export async function GET(request: NextRequest) {
+  const startedAt = performance.now();
+  let status = 500;
+  try {
+    const response = await handleAnalysisRequest(request);
+    status = response.status;
+    return response;
+  } finally {
+    recordApiMetric("analysis", status, startedAt);
+  }
+}
+
+async function handleAnalysisRequest(request: NextRequest) {
   const input = request.nextUrl.searchParams.get("url") ?? "";
   const parsed = parseGitHubRepoUrl(input);
   if (!parsed.ok) return errorResponse({ code: "INVALID_URL", message: parsed.error });
@@ -29,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (err instanceof GitHubError) {
       return errorResponse({ code: err.code, message: err.message, retryAt: err.retryAt });
     }
-    console.error("[api/analyze] unexpected error", err);
+    console.error("[api/analyze] unexpected error", { name: err instanceof Error ? err.name : "UnknownError" });
     return errorResponse({ code: "INTERNAL_ERROR", message: "Something went wrong while analyzing the repository. Please try again." });
   }
 }
