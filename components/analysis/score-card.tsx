@@ -83,8 +83,9 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
                 >
                   {ch.label}
                 </a>
-                <span className="font-mono text-xs tabular-nums">
-                  {ch.status === "unknown" ? "?" : ch.points}/{ch.maxPoints}
+                <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>{ch.status === "pass" ? "Detected" : ch.status === "fail" ? "Not found" : "Unverified"}</span>
+                  <span className="font-mono tabular-nums">{ch.status === "unknown" ? "?" : ch.points}/{ch.maxPoints}</span>
                 </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-muted">
