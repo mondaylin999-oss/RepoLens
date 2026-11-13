@@ -34,6 +34,7 @@ export function SavedRepositories() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <h2 id="saved-repositories-heading" className="font-semibold">Saved repositories</h2>
         <p className="mt-1 text-sm text-muted-foreground">Your list is stored only in this browser. No account needed.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Saved scores can become outdated as repositories change. Choose “Analyze again” to refresh one.</p>
         <div className="mt-4 flex flex-wrap gap-3">
           <label className="grid gap-1 text-xs font-medium text-muted-foreground">
             Language
