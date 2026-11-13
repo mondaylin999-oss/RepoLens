@@ -1,10 +1,14 @@
-import { CircleHelp, PartyPopper } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { CircleHelp, Eye, EyeOff, PartyPopper } from "lucide-react";
 import type { Recommendation, RepoMetadata } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "./copy-button";
 import { LicenseGoalPicker } from "./license-goal-picker";
 import { RecommendationDone } from "./recommendation-done";
+import { Button } from "@/components/ui/button";
 
 const PRIORITY = {
   high: { label: "High impact", variant: "danger" },
@@ -13,6 +17,31 @@ const PRIORITY = {
 } as const;
 
 export function RecommendationList({ recommendations, complete, repo }: { recommendations: Recommendation[]; complete: boolean; repo: RepoMetadata }) {
+  const storageKey = `repolens-hidden-recommendations:${repo.fullName}`;
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+  const [showHidden, setShowHidden] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "[]") as string[];
+      setHiddenIds(saved.filter((id) => recommendations.some((recommendation) => recommendation.checkId === id)));
+    } catch {
+      setHiddenIds([]);
+    }
+  }, [storageKey, recommendations]);
+
+  function updateHidden(next: string[]) {
+    setHiddenIds(next);
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(next));
+    } catch {
+      // Hiding still works for the current page if storage is unavailable.
+    }
+  }
+
+  const visibleRecommendations = recommendations.filter((recommendation) => !hiddenIds.includes(recommendation.checkId));
+  const hiddenRecommendations = recommendations.filter((recommendation) => hiddenIds.includes(recommendation.checkId));
+
   return (
     <Card>
       <CardHeader>
@@ -20,6 +49,29 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
         <CardDescription>Based only on what this analysis found, ordered by impact.</CardDescription>
       </CardHeader>
       <CardContent>
+        {hiddenRecommendations.length > 0 && (
+          <div className="mb-4 rounded-lg border border-dashed p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-muted-foreground">{hiddenRecommendations.length} recommendation{hiddenRecommendations.length === 1 ? "" : "s"} hidden</p>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setShowHidden((current) => !current)}>
+                {showHidden ? <EyeOff /> : <Eye />}
+                {showHidden ? "Hide hidden items" : "Review hidden items"}
+              </Button>
+            </div>
+            {showHidden && (
+              <ul className="mt-3 space-y-2">
+                {hiddenRecommendations.map((recommendation) => (
+                  <li key={recommendation.checkId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <span>{recommendation.title}</span>
+                    <Button type="button" variant="outline" size="sm" onClick={() => updateHidden(hiddenIds.filter((id) => id !== recommendation.checkId))}>
+                      Restore
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         {!complete && (
           <div className="mb-4 flex items-start gap-3 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
             <CircleHelp className="mt-0.5 size-4 shrink-0 text-warning" />
@@ -35,9 +87,11 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
           ) : (
             <p className="text-sm text-muted-foreground">No improvements found among the checks that could be verified.</p>
           )
+        ) : visibleRecommendations.length === 0 ? (
+          <p className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">All recommendations are hidden. You can restore them above.</p>
         ) : (
           <ol className="grid gap-4 md:grid-cols-2">
-            {recommendations.map((r) => (
+            {visibleRecommendations.map((r) => (
               <li key={r.checkId} className="flex flex-col rounded-lg border p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">{r.title}</h3>
@@ -47,6 +101,9 @@ export function RecommendationList({ recommendations, complete, repo }: { recomm
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => updateHidden([...hiddenIds, r.checkId])} aria-label={`Hide ${r.title}`}>
+                    <EyeOff /> Hide
+                  </Button>
                   <RecommendationDone repoName={repo.fullName} recommendationId={r.checkId} title={r.title} />
                   <CopyButton value={r.howToImprove.map((step, index) => `${index + 1}. ${step}`).join("\n")} label="Copy steps" />
                   {r.checkId === "readme" && (
