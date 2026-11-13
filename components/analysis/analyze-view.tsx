@@ -85,6 +85,8 @@ export function AnalyzeView({ url }: { url: string }) {
 
 function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: string }) {
   const { tree } = data;
+  const licenseCheck = data.checks.find((check) => check.id === "license");
+  const licenseFile = licenseCheck?.matches.find((match) => /^(licen[sc]e|copying|unlicense)([-._][A-Za-z0-9.+-]*)?$/i.test(match));
   const passedChecks = data.checks.filter((check) => check.status === "pass").length;
   const summary = [
     {
@@ -143,7 +145,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           </div>
         </div>
       )}
-      <RepoOverview repo={data.repo} />
+      <RepoOverview repo={data.repo} licenseFile={licenseFile} />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
         <ScoreCard score={data.score} checks={data.checks} />
         <Checklist

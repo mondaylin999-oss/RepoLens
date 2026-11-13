@@ -5,8 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCount, formatDate, relativeTime } from "@/lib/utils";
 
-export function RepoOverview({ repo }: { repo: RepoMetadata }) {
+export function RepoOverview({ repo, licenseFile }: { repo: RepoMetadata; licenseFile?: string }) {
   const updated = repo.pushedAt ?? repo.updatedAt;
+  const licenseName = repo.license
+    ? repo.license.spdxId && repo.license.spdxId !== "NOASSERTION" ? repo.license.spdxId : repo.license.name
+    : licenseFile;
   const stats = [
     { label: "Stars", value: formatCount(repo.stars), icon: Star },
     { label: "Forks", value: formatCount(repo.forks), icon: GitFork },
@@ -32,6 +35,21 @@ export function RepoOverview({ repo }: { repo: RepoMetadata }) {
             {repo.language && <Badge>{repo.language}</Badge>}
             <Badge variant="outline"><GitBranch className="size-3" />Branch: {repo.defaultBranch}</Badge>
             <Badge variant="muted"><CalendarDays className="size-3" />Created {relativeTime(repo.createdAt)}</Badge>
+            {licenseName && (
+              <Badge variant="outline">
+                License:{" "}
+                {licenseFile ? (
+                  <a
+                    href={`${repo.htmlUrl}/blob/${repo.defaultBranch.split("/").map(encodeURIComponent).join("/")}/${licenseFile.split("/").map(encodeURIComponent).join("/")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {licenseName}
+                  </a>
+                ) : licenseName}
+              </Badge>
+            )}
             {repo.archived && <Badge variant="warning"><Archive className="size-3" />Archived</Badge>}
             {repo.isFork && <Badge variant="muted"><GitFork className="size-3" />Fork</Badge>}
           </h2>
