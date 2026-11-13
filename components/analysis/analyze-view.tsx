@@ -15,6 +15,7 @@ import { AnalysisSkeleton } from "./analysis-skeleton";
 import { ErrorState, EmptyState } from "./states";
 import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
+import { CopyButton } from "./copy-button";
 
 type State =
   | { status: "idle" }
@@ -226,6 +227,22 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
     URL.revokeObjectURL(objectUrl);
   }
 
+  const planningSummary = [
+    "RepoLens repository summary",
+    `Repository: ${data.repo.fullName}`,
+    `GitHub URL: ${data.repo.htmlUrl}`,
+    data.repo.description ? `Description: ${data.repo.description}` : "Description: Not set",
+    `Readiness score: ${data.score.complete ? `${data.score.score}/100` : `At least ${data.score.earned}/100 (${data.score.unknownPoints} points unverified)`}`,
+    "",
+    "Checks",
+    ...data.checks.map((check) => `- ${check.label}: ${check.status === "pass" ? "Passed" : check.status === "fail" ? "Needs work" : "Unverified"} — ${check.evidence}`),
+    "",
+    "Suggested next steps",
+    ...(data.recommendations.length
+      ? data.recommendations.flatMap((recommendation) => [`- ${recommendation.title}`, ...recommendation.howToImprove.map((step) => `  ${step}`)])
+      : ["- No improvement steps were suggested for this analysis."]),
+  ].join("\n");
+
   return (
     <div className="print-report animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -239,6 +256,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Print report</Button>
           <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>Save as PDF</Button>
           <Button type="button" variant="outline" size="sm" onClick={exportMarkdown}><Download aria-hidden="true" />Export Markdown</Button>
+          <CopyButton value={planningSummary} label="Copy plain text summary" />
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
