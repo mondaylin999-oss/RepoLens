@@ -85,6 +85,30 @@ export function AnalyzeView({ url }: { url: string }) {
 
 function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: string }) {
   const { tree } = data;
+  const passedChecks = data.checks.filter((check) => check.status === "pass").length;
+  const summary = [
+    {
+      label: "Readiness score",
+      value: data.score.complete ? `${data.score.score}/100` : `≥ ${data.score.earned}/100`,
+      detail: data.score.complete ? "out of 100 points" : `${data.score.unknownPoints} points unverified`,
+    },
+    {
+      label: "Checks passed",
+      value: `${passedChecks}/${data.checks.length}`,
+      detail: `${data.checks.filter((check) => check.status === "unknown").length} unverified`,
+    },
+    {
+      label: "Recommendations",
+      value: data.recommendations.length.toString(),
+      detail: "ways to improve",
+    },
+    {
+      label: "Files returned",
+      value: tree.fileCount.toLocaleString(),
+      detail: tree.status === "complete" ? "complete file list" : "file list incomplete",
+    },
+  ];
+
   return (
     <div className="animate-fade-up space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -98,6 +122,15 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           <Link href="/analyze">Analyze another repository</Link>
         </Button>
       </div>
+      <dl aria-label="Analysis summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {summary.map((item) => (
+          <div key={item.label} className="rounded-xl border bg-card px-4 py-3">
+            <dt className="text-xs text-muted-foreground">{item.label}</dt>
+            <dd className="mt-1 text-lg font-semibold tabular-nums">{item.value}</dd>
+            <p className="text-xs text-muted-foreground">{item.detail}</p>
+          </div>
+        ))}
+      </dl>
       {tree.status !== "complete" && (
         <div role="status" className="flex gap-3 rounded-xl border border-warning/40 bg-warning-soft p-4 text-sm">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
