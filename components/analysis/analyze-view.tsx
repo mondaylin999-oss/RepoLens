@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AlertTriangle, Info } from "lucide-react";
 import type { AnalysisResult, AnalyzeResponse, ApiError } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 import { RepoUrlForm } from "@/components/github/repo-url-form";
 import { RepoOverview } from "@/components/github/repo-overview";
 import { ScoreCard } from "./score-card";
@@ -77,12 +79,17 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
   const { tree } = data;
   return (
     <div className="animate-fade-up space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Analyzed repository:{" "}
-        <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all font-mono text-primary hover:underline">
-          {submittedUrl}
-        </a>
-      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Analyzed repository:{" "}
+          <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="break-all font-mono text-primary hover:underline">
+            {submittedUrl}
+          </a>
+        </p>
+        <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
+          <Link href="/analyze">Analyze another repository</Link>
+        </Button>
+      </div>
       {tree.status !== "complete" && (
         <div role="status" className="flex gap-3 rounded-xl border border-warning/40 bg-warning-soft p-4 text-sm">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
