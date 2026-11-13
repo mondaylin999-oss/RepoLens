@@ -68,6 +68,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
   const baseText = filterFacts(texts[textKey], repo, includedFacts);
   const tonePrefix = tone === "direct" ? "" : tone === "conversational" ? `Here’s a quick overview of ${repo.name}.` : `Formal project summary: ${repo.name}.`;
   const text = tonePrefix ? `${tonePrefix}\n\n${baseText}` : baseText;
+  const sentences = text.split(/(?<=[.!?])\s+|\n+/).map((sentence) => sentence.trim()).filter(Boolean);
   const originalBaseText = `${AUDIENCE_LABELS[audience]}\n\n${generated[format]}`;
   const originalText = tonePrefix ? `${tonePrefix}\n\n${originalBaseText}` : originalBaseText;
   const allFactsIncluded = FACTS.every((fact) => includedFacts[fact.id]);
@@ -148,6 +149,17 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           onChange={(e) => setTexts((t) => ({ ...t, [textKey]: tonePrefix ? e.target.value.replace(`${tonePrefix}\n\n`, "") : e.target.value }))}
           rows={10}
         />
+        <details className="mt-3 rounded-lg border px-3 py-2">
+          <summary className="cursor-pointer text-sm font-medium">See source facts for each sentence</summary>
+          <ol className="mt-3 space-y-3">
+            {sentences.map((sentence, index) => (
+              <li key={`${index}-${sentence}`} className="border-l-2 border-primary/30 pl-3">
+                <p className="text-sm">{sentence}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Source: {sourceFacts(sentence, repo)}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button onClick={onCopy}>
             {copy === "copied" ? <Check /> : <Copy />}
@@ -224,4 +236,17 @@ function filterFacts(text: string, repo: RepoMetadata, included: Record<Fact, bo
     if (!included.source && trimmed.includes(repo.htmlUrl)) return false;
     return true;
   }).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function sourceFacts(sentence: string, repo: RepoMetadata): string {
+  const sources: string[] = [];
+  if (sentence.includes(repo.name)) sources.push("repository name");
+  const overview = cleanDescription(repo.description);
+  if (overview && sentence.includes(overview)) sources.push("GitHub About description");
+  if (repo.language && sentence.includes(repo.language)) sources.push("primary language metadata");
+  const usedTopics = repo.topics.filter((topic) => sentence.toLowerCase().includes(topic.toLowerCase()));
+  if (usedTopics.length) sources.push(`repository topics (${usedTopics.join(", ")})`);
+  if (repo.homepage && sentence.includes(repo.homepage)) sources.push("GitHub website field");
+  if (sentence.includes(repo.htmlUrl)) sources.push("repository URL");
+  return sources.length ? sources.join(" · ") : sentence.includes("[") ? "editable placeholder" : "template wording";
 }
