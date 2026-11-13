@@ -1,7 +1,8 @@
 import { CircleHelp, PartyPopper } from "lucide-react";
-import type { Recommendation } from "@/lib/types";
+import type { Recommendation, RepoMetadata } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CopyButton } from "./copy-button";
 
 const PRIORITY = {
   high: { label: "High impact", variant: "danger" },
@@ -9,7 +10,7 @@ const PRIORITY = {
   low: { label: "Nice to have", variant: "muted" },
 } as const;
 
-export function RecommendationList({ recommendations, complete }: { recommendations: Recommendation[]; complete: boolean }) {
+export function RecommendationList({ recommendations, complete, repo }: { recommendations: Recommendation[]; complete: boolean; repo: RepoMetadata }) {
   return (
     <Card>
       <CardHeader>
@@ -43,6 +44,12 @@ export function RecommendationList({ recommendations, complete }: { recommendati
                     {r.potentialPoints > 0 && <Badge variant="default" className="font-mono">+{r.potentialPoints}</Badge>}
                   </div>
                 </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <CopyButton value={r.howToImprove.map((step, index) => `${index + 1}. ${step}`).join("\n")} label="Copy steps" />
+                  {r.checkId === "readme" && (
+                    <CopyButton value={readmeOutline(repo)} label="Copy README outline" />
+                  )}
+                </div>
                 <dl className="mt-3 space-y-3 text-sm">
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">What&apos;s missing</dt>
@@ -68,4 +75,32 @@ export function RecommendationList({ recommendations, complete }: { recommendati
       </CardContent>
     </Card>
   );
+}
+
+function readmeOutline(repo: RepoMetadata): string {
+  return [
+    `# ${repo.name}`,
+    "",
+    repo.description ?? "[Describe what this project does and who it is for.]",
+    "",
+    "## Features",
+    "- [Feature one]",
+    "- [Feature two]",
+    "",
+    "## Getting started",
+    "### Prerequisites",
+    "- [Required runtime or tools]",
+    "",
+    "### Installation",
+    "[Add installation steps]",
+    "",
+    "## Usage",
+    "[Show a basic example]",
+    "",
+    "## Tests",
+    "[Explain how to run the tests]",
+    "",
+    "## License",
+    repo.license?.name ?? "[Add your license information]",
+  ].join("\n");
 }

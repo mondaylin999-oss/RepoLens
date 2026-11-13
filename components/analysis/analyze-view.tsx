@@ -156,7 +156,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           treeStatus={tree.status}
         />
       </div>
-      <RecommendationList recommendations={data.recommendations} complete={data.score.complete} />
+      <RecommendationList recommendations={data.recommendations} complete={data.score.complete} repo={data.repo} />
       <DescriptionGenerator description={data.description} />
       <p className="text-xs text-muted-foreground">
         <Info className="mr-1.5 inline size-3.5 align-[-2px]" />
