@@ -9,6 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type Format = "portfolio" | "linkedin";
+type Audience = "recruiters" | "collaborators" | "clients";
+type TextKey = `${Audience}-${Format}`;
+const AUDIENCE_LABELS: Record<Audience, string> = {
+  recruiters: "Portfolio summary for recruiters",
+  collaborators: "Project overview for collaborators",
+  clients: "Project overview for clients",
+};
+const AUDIENCES: { id: Audience; label: string }[] = [
+  { id: "recruiters", label: "Recruiters" },
+  { id: "collaborators", label: "Collaborators" },
+  { id: "clients", label: "Clients" },
+];
 const FORMATS: { id: Format; label: string }[] = [
   { id: "portfolio", label: "Portfolio entry" },
   { id: "linkedin", label: "LinkedIn project" },
@@ -16,11 +28,16 @@ const FORMATS: { id: Format; label: string }[] = [
 
 export function DescriptionGenerator({ description }: { description: PortfolioDescription }) {
   const [format, setFormat] = useState<Format>("portfolio");
-  const [texts, setTexts] = useState<Record<Format, string>>({ portfolio: description.portfolio, linkedin: description.linkedin });
+  const [audience, setAudience] = useState<Audience>("recruiters");
+  const [texts, setTexts] = useState<Record<TextKey, string>>(() => Object.fromEntries(
+    AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${description[item.id]}`])),
+  ) as Record<TextKey, string>);
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
-  const text = texts[format];
-  const edited = text !== description[format];
+  const textKey: TextKey = `${audience}-${format}`;
+  const text = texts[textKey];
+  const originalText = `${AUDIENCE_LABELS[audience]}\n\n${description[format]}`;
+  const edited = text !== originalText;
 
   async function onCopy() {
     try {
@@ -39,23 +56,31 @@ export function DescriptionGenerator({ description }: { description: PortfolioDe
           <CardTitle>Portfolio description</CardTitle>
           <CardDescription>Generated from verified repository details only. Edit it freely before copying.</CardDescription>
         </div>
-        <div role="tablist" aria-label="Description format" className="inline-flex shrink-0 rounded-lg bg-muted p-1">
-          {FORMATS.map((f) => (
-            <button
-              key={f.id}
-              role="tab"
-              type="button"
-              aria-selected={format === f.id}
-              aria-controls="description-text"
-              onClick={() => setFormat(f.id)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
-                format === f.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <div>
+            <label htmlFor="description-audience" className="mr-2 text-xs text-muted-foreground">Write for</label>
+            <select id="description-audience" value={audience} onChange={(event) => setAudience(event.target.value as Audience)} className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {AUDIENCES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+            </select>
+          </div>
+          <div role="tablist" aria-label="Description format" className="inline-flex shrink-0 rounded-lg bg-muted p-1">
+            {FORMATS.map((f) => (
+              <button
+                key={f.id}
+                role="tab"
+                type="button"
+                aria-selected={format === f.id}
+                aria-controls="description-text"
+                onClick={() => setFormat(f.id)}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                  format === f.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -69,7 +94,7 @@ export function DescriptionGenerator({ description }: { description: PortfolioDe
           id="description-text"
           role="tabpanel"
           value={text}
-          onChange={(e) => setTexts((t) => ({ ...t, [format]: e.target.value }))}
+          onChange={(e) => setTexts((t) => ({ ...t, [textKey]: e.target.value }))}
           rows={10}
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -77,7 +102,7 @@ export function DescriptionGenerator({ description }: { description: PortfolioDe
             {copy === "copied" ? <Check /> : <Copy />}
             {copy === "copied" ? "Copied!" : "Copy Description"}
           </Button>
-          <Button variant="outline" disabled={!edited} onClick={() => setTexts((t) => ({ ...t, [format]: description[format] }))}>
+          <Button variant="outline" disabled={!edited} onClick={() => setTexts((t) => ({ ...t, [textKey]: originalText }))}>
             <RotateCcw /> Reset
           </Button>
           <span role="status" aria-live="polite" className="text-sm text-muted-foreground">
