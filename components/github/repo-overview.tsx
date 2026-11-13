@@ -41,7 +41,11 @@ export function RepoOverview({ repo }: { repo: RepoMetadata }) {
           {repo.topics.length > 0 && (
             <ul aria-label="Topics" className="mt-3 flex flex-wrap gap-1.5">
               {repo.topics.map((t) => (
-                <li key={t}><Badge variant="outline" className="font-mono text-[11px]">{t}</Badge></li>
+                <li key={t}>
+                  <a href={`https://github.com/topics/${encodeURIComponent(t)}`} target="_blank" rel="noopener noreferrer" aria-label={`Browse GitHub topic ${t}`}>
+                    <Badge variant="outline" className="font-mono text-[11px] transition-colors hover:border-primary hover:text-primary">{t}</Badge>
+                  </a>
+                </li>
               ))}
             </ul>
           )}
