@@ -5,7 +5,7 @@ import { BookmarkCheck, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { readSavedRepositories, SAVED_REPOSITORIES_KEY, type SavedScoreSnapshot } from "@/lib/analysis/local-history";
 
-export function SaveRepositoryButton({ repository, url, snapshot }: { repository: string; url: string; snapshot: SavedScoreSnapshot }) {
+export function SaveRepositoryButton({ repository, url, language, snapshot }: { repository: string; url: string; language: string | null; snapshot: SavedScoreSnapshot }) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function SaveRepositoryButton({ repository, url, snapshot }: { repository
         return;
       }
       window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify([
-        { repository, url, savedAt: new Date().toISOString(), lastRefreshedAt: snapshot.analyzedAt, scoreHistory: [snapshot] },
+        { repository, url, language, savedAt: new Date().toISOString(), lastRefreshedAt: snapshot.analyzedAt, scoreHistory: [snapshot] },
         ...current,
       ]));
       setSaved(true);

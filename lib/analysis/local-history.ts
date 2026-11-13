@@ -14,6 +14,7 @@ export interface LocalAnalysisHistoryEntry {
 export interface SavedRepository {
   repository: string;
   url: string;
+  language?: string | null;
   savedAt: string;
   lastRefreshedAt?: string;
   scoreHistory?: SavedScoreSnapshot[];

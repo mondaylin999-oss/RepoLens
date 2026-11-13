@@ -7,6 +7,8 @@ import { readSavedRepositories, type SavedRepository } from "@/lib/analysis/loca
 export function SavedRepositories() {
   const [ready, setReady] = useState(false);
   const [repositories, setRepositories] = useState<SavedRepository[]>([]);
+  const [languageFilter, setLanguageFilter] = useState("all");
+  const [scoreFilter, setScoreFilter] = useState("all");
 
   useEffect(() => {
     setRepositories(readSavedRepositories());
@@ -14,14 +16,46 @@ export function SavedRepositories() {
   }, []);
 
   if (!ready || repositories.length === 0) return null;
+  const languages = Array.from(new Set(repositories.map((item) => item.language || "No language"))).sort((a, b) => a.localeCompare(b));
+  const filteredRepositories = repositories.filter((item) => {
+    if (languageFilter !== "all" && (item.language || "No language") !== languageFilter) return false;
+    if (scoreFilter === "all") return true;
+    const latest = item.scoreHistory?.at(-1);
+    if (scoreFilter === "unverified") return latest !== undefined && !latest.complete;
+    if (scoreFilter === "no-score") return latest === undefined;
+    if (!latest?.complete || latest.score === null) return false;
+    if (scoreFilter === "80") return latest.score >= 80;
+    if (scoreFilter === "60") return latest.score >= 60 && latest.score < 80;
+    return latest.score < 60;
+  });
 
   return (
     <section aria-labelledby="saved-repositories-heading" className="border-b">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <h2 id="saved-repositories-heading" className="font-semibold">Saved repositories</h2>
         <p className="mt-1 text-sm text-muted-foreground">Your list is stored only in this browser. No account needed.</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+            Language
+            <select value={languageFilter} onChange={(event) => setLanguageFilter(event.target.value)} className="h-9 min-w-40 rounded-lg border bg-background px-3 text-sm font-normal text-foreground">
+              <option value="all">All languages</option>
+              {languages.map((language) => <option key={language} value={language}>{language}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+            Score
+            <select value={scoreFilter} onChange={(event) => setScoreFilter(event.target.value)} className="h-9 min-w-40 rounded-lg border bg-background px-3 text-sm font-normal text-foreground">
+              <option value="all">All scores</option>
+              <option value="80">80–100</option>
+              <option value="60">60–79</option>
+              <option value="below-60">Below 60</option>
+              <option value="unverified">Unverified score</option>
+              <option value="no-score">Not analyzed yet</option>
+            </select>
+          </label>
+        </div>
         <ul className="mt-4 flex flex-wrap gap-2">
-          {repositories.map((item) => (
+          {filteredRepositories.map((item) => (
             <li key={item.url} className="min-w-56 rounded-lg border bg-card p-3">
               <Link href={`/analyze?url=${encodeURIComponent(item.url)}`} className="text-sm font-medium text-primary hover:underline">
                 {item.repository}
@@ -38,6 +72,7 @@ export function SavedRepositories() {
             </li>
           ))}
         </ul>
+        {filteredRepositories.length === 0 && <p className="mt-4 text-sm text-muted-foreground">No saved repositories match these filters.</p>}
       </div>
     </section>
   );

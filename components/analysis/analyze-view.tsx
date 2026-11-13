@@ -97,7 +97,7 @@ export function AnalyzeView({ url }: { url: string }) {
         analyzedAt: data.analyzedAt,
       };
       const scoreHistory = [...(entry.scoreHistory ?? []).filter((item) => item.analyzedAt !== snapshot.analyzedAt), snapshot].slice(-12);
-      saved[index] = { ...entry, lastRefreshedAt: snapshot.analyzedAt, scoreHistory };
+      saved[index] = { ...entry, language: data.repo.language, lastRefreshedAt: snapshot.analyzedAt, scoreHistory };
       window.localStorage.setItem(SAVED_REPOSITORIES_KEY, JSON.stringify(saved));
     } catch {
       // Keep the result visible if browser storage is unavailable.
@@ -168,6 +168,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
+            language={data.repo.language}
             snapshot={{ score: data.score.score, earned: data.score.earned, complete: data.score.complete, analyzedAt: data.analyzedAt }}
           />
           <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
