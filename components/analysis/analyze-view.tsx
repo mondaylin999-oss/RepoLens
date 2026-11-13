@@ -141,7 +141,7 @@ export function AnalyzeView({ url, checklistOnly = false }: { url: string; check
         <RepoUrlForm key={url} defaultValue={url} busy={state.status === "loading"} autoFocus={!url} className="mt-4 max-w-3xl" />
       </div>
 
-      <div aria-live="polite" aria-busy={state.status === "loading"}>
+      <div aria-busy={state.status === "loading"}>
         {state.status === "idle" && <EmptyState />}
         {state.status === "loading" && <AnalysisSkeleton message={loadingMessage} />}
         {state.status === "error" && <ErrorState error={state.error} onRetry={retry} />}
@@ -261,6 +261,7 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
   if (checklistOnly) {
     return (
       <div className="print-report animate-fade-up space-y-6">
+        <p role="status" className="sr-only">Checklist results are ready for {data.repo.fullName}.</p>
         <div>
           <h2 className="text-xl font-semibold">Checklist-only report</h2>
           <p className="mt-1 text-sm text-muted-foreground">{data.repo.fullName} · <a href={data.repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on GitHub</a></p>
@@ -273,6 +274,9 @@ function Results({ data, submittedUrl, checklistOnly }: { data: AnalysisResult; 
 
   return (
     <div className="print-report animate-fade-up space-y-6">
+      <p role="status" className="sr-only">
+        Analysis complete for {data.repo.fullName}. {data.score.complete ? `Readiness score ${data.score.score} out of 100.` : `At least ${data.score.earned} points confirmed; some checks are unverified.`}
+      </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Analyzed repository:{" "}

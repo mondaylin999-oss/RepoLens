@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function AnalysisSkeleton({ message }: { message: string }) {
   return (
     <div className="space-y-6">
-      <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+      <p role="status" aria-live="polite" aria-atomic="true" className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 aria-hidden="true" className="size-4 animate-spin text-primary" />
         {message}
       </p>

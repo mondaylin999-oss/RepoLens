@@ -42,7 +42,7 @@ export function Checklist({
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                   <h3 className="font-medium">{c.label}</h3>
                   <div className="flex items-center gap-2">
-                    <Badge variant={c.status === "pass" ? "success" : c.status === "fail" ? "danger" : "warning"}>{STATUS_LABEL[c.status]}</Badge>
+                    <Badge aria-label={`${c.label}: ${STATUS_LABEL[c.status]}`} variant={c.status === "pass" ? "success" : c.status === "fail" ? "danger" : "warning"}>{STATUS_LABEL[c.status]}</Badge>
                     <span className="w-14 text-right font-mono text-xs tabular-nums text-muted-foreground">
                       {c.status === "unknown" ? "?" : `+${c.points}`}/{c.maxPoints}
                     </span>
@@ -117,7 +117,7 @@ function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; 
 
   return (
     <div className="mt-2">
-      <button type="button" onClick={toggleFiles} disabled={loading} aria-expanded={expanded} className="text-xs font-medium text-primary hover:underline disabled:opacity-60">
+      <button type="button" onClick={toggleFiles} disabled={loading} aria-expanded={expanded} aria-busy={loading} className="text-xs font-medium text-primary hover:underline disabled:opacity-60">
         {loading ? "Loading files…" : expanded ? "Hide full file list" : "Show all matching files"}
       </button>
       {error && <p role="alert" className="mt-1 text-xs text-danger">{error}</p>}
