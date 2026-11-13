@@ -31,6 +31,7 @@ export interface RepoMetadata {
   forks: number;
   openIssues: number;
   pushedAt: string | null;
+  createdAt: string;
   updatedAt: string;
   topics: string[];
   defaultBranch: string;

@@ -30,6 +30,7 @@ interface RawRepo {
   forks_count: number;
   open_issues_count: number;
   pushed_at: string | null;
+  created_at: string;
   updated_at: string;
   topics?: string[];
   default_branch: string;
@@ -192,6 +193,7 @@ function mapRepo(r: RawRepo): RepoMetadata {
     forks: r.forks_count,
     openIssues: r.open_issues_count,
     pushedAt: r.pushed_at,
+    createdAt: r.created_at,
     updatedAt: r.updated_at,
     topics: r.topics ?? [],
     defaultBranch: r.default_branch,
