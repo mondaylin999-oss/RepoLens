@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import type { RepoMetadata } from "@/lib/types";
 import { cleanDescription, PLACEHOLDERS } from "@/lib/portfolio/generator";
 
-type Format = "short" | "portfolio" | "linkedin";
+type Format = "short" | "portfolio" | "linkedin" | "caseStudy";
 type Audience = "recruiters" | "collaborators" | "clients";
 type TextKey = `${Audience}-${Format}`;
 const AUDIENCE_LABELS: Record<Audience, string> = {
@@ -27,6 +27,7 @@ const FORMATS: { id: Format; label: string }[] = [
   { id: "short", label: "One sentence" },
   { id: "portfolio", label: "Portfolio entry" },
   { id: "linkedin", label: "LinkedIn project" },
+  { id: "caseStudy", label: "Case study" },
 ];
 
 export function DescriptionGenerator({ description, repo }: { description: PortfolioDescription; repo: RepoMetadata }) {
@@ -36,6 +37,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
     short: `${repo.name}: ${cleanDescription(repo.description) ?? PLACEHOLDERS.overview}`,
     portfolio: description.portfolio,
     linkedin: description.linkedin,
+    caseStudy: caseStudyDraft(repo),
   };
   const [texts, setTexts] = useState<Record<TextKey, string>>(() => Object.fromEntries(
     AUDIENCES.flatMap((option) => FORMATS.map((item) => [`${option.id}-${item.id}`, `${AUDIENCE_LABELS[option.id]}\n\n${generated[item.id]}`])),
@@ -121,4 +123,28 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
       </CardContent>
     </Card>
   );
+}
+
+function caseStudyDraft(repo: RepoMetadata): string {
+  const technologies = [repo.language, ...repo.topics.filter((topic) => topic.toLowerCase() !== repo.language?.toLowerCase())].filter(Boolean);
+  const lines = [
+    `# ${repo.name}`,
+    "",
+    "## Overview",
+    cleanDescription(repo.description) ?? PLACEHOLDERS.overview,
+    "",
+    "## Context and goal",
+    "[Describe the problem, intended audience, and project goals.]",
+    "",
+    "## Approach",
+    technologies.length ? `Repository metadata lists: ${technologies.join(", ")}. [Explain your design and implementation choices.]` : "[Describe your approach and the technologies you chose.]",
+    "",
+    "## Results",
+    "[Add verified outcomes, what you learned, and any limitations.]",
+    "",
+    "## Links",
+  ];
+  if (repo.homepage) lines.push(`Demo: ${repo.homepage}`);
+  lines.push(`Source: ${repo.htmlUrl}`);
+  return lines.join("\n");
 }
