@@ -1,5 +1,6 @@
 import { BookOpenCheck, ClipboardList, FileText, Gauge, Link2, ListChecks, Sparkles } from "lucide-react";
 import { RepoUrlForm } from "@/components/github/repo-url-form";
+import { ThemePreview } from "@/components/layout/theme-preview";
 import { CHECK_DEFINITIONS } from "@/lib/analysis/checks";
 
 const STEPS = [
@@ -37,6 +38,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <ThemePreview />
 
       <section id="how-it-works" className="scroll-mt-20 border-b">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
