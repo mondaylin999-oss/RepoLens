@@ -144,7 +144,7 @@ export function SavedRepositories() {
 }
 
 function ScoreHistoryChart({ repository, snapshots }: { repository: string; snapshots: NonNullable<SavedRepository["scoreHistory"]> }) {
-  const { text: t } = useLanguage();
+  const { text: t, language } = useLanguage();
   if (snapshots.length === 0) return <p className="mt-2 text-xs text-muted-foreground">{t("Score history will appear after an analysis.")}</p>;
   const values = snapshots.map((item) => item.score ?? item.earned);
   const points = values.map((score, index) => {
@@ -153,6 +153,13 @@ function ScoreHistoryChart({ repository, snapshots }: { repository: string; snap
     return `${x},${y}`;
   }).join(" ");
   const latest = snapshots[snapshots.length - 1];
+  const formatDate = (value: string) => new Intl.DateTimeFormat(language === "my" ? "my-MM" : "en-US", { dateStyle: "medium" }).format(new Date(value));
+  const historyDescription = snapshots.map((snapshot) => {
+    const score = snapshot.complete
+      ? `${snapshot.score} ${t("out of 100")}`
+      : `${t("at least")} ${snapshot.earned} ${t("of 100 points confirmed")}`;
+    return `${formatDate(snapshot.analyzedAt)}: ${score}`;
+  }).join("; ");
 
   return (
     <div className="mt-2">
@@ -160,7 +167,7 @@ function ScoreHistoryChart({ repository, snapshots }: { repository: string; snap
         <p className="text-xs text-muted-foreground">{t("Score history")} · {snapshots.length} {t(snapshots.length === 1 ? "analysis" : "analyses")}</p>
         <span className="text-sm font-semibold tabular-nums">{latest.complete ? `${latest.score}/100` : `≥ ${latest.earned}/100`}</span>
       </div>
-      <svg role="img" aria-label={`${t("Score history for")} ${repository}: ${values.join(", ")} ${t("points")}`} viewBox="0 0 140 44" className="mt-1 h-11 w-full text-primary">
+      <svg role="img" aria-label={`${t("Score history for")} ${repository}. ${historyDescription}`} viewBox="0 0 140 44" className="mt-1 h-11 w-full text-primary">
         <line x1="4" y1="38" x2="136" y2="38" className="stroke-border" strokeWidth="1" />
         {snapshots.length > 1 && <polyline points={points} fill="none" className="stroke-current" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />}
         {values.map((score, index) => {

@@ -35,8 +35,10 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center">
-          <div className="relative size-44" role="img" aria-label={score.complete ? `${t("Score")} ${score.score} ${t("out of 100")}` : `${t("Incomplete")}: ${t("at least")} ${score.earned} ${t("of 100 points confirmed")}`}>
-            <svg viewBox="0 0 120 120" className="size-full -rotate-90">
+          <div className="relative size-44" role="img" aria-label={score.complete
+            ? `${t("Readiness score")}: ${score.score} ${t("out of 100")}. ${band ? t(band.label) : ""}`
+            : `${t("Readiness score")}: ${t("Incomplete")}, ${t("at least")} ${score.earned} ${t("of 100 points confirmed")}`}>
+            <svg aria-hidden="true" viewBox="0 0 120 120" className="size-full -rotate-90">
               <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-muted" />
               {!score.complete && (
                 <circle
@@ -88,7 +90,17 @@ export function ScoreCard({ score, checks }: { score: ScoreResult; checks: Check
                   <span className="font-mono tabular-nums">{ch.status === "unknown" ? "?" : ch.points}/{ch.maxPoints}</span>
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                role="progressbar"
+                aria-label={t(ch.label)}
+                aria-valuemin={0}
+                aria-valuemax={ch.maxPoints}
+                aria-valuenow={ch.status === "unknown" ? undefined : ch.points}
+                aria-valuetext={ch.status === "unknown"
+                  ? `${t("Unverified")}: ${t(`${ch.maxPoints} points unverified`)}`
+                  : `${t(ch.status === "pass" ? "Detected" : "Not found")}: ${ch.points}/${ch.maxPoints} ${t("points")}`}
+                className="h-1.5 overflow-hidden rounded-full bg-muted"
+              >
                 <div
                   className={cn("h-full rounded-full", ch.status === "pass" ? "bg-success" : ch.status === "unknown" ? "bg-warning/50" : "bg-transparent")}
                   style={{ width: ch.status === "fail" ? 0 : "100%" }}
