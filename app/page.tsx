@@ -22,11 +22,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden border-b">
         <div aria-hidden className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_70%)]" />
         <div aria-hidden className="absolute left-1/2 top-0 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-4 pb-20 pt-16 text-center sm:px-6 sm:pb-24 sm:pt-24">
+        <div className="relative mx-auto max-w-3xl px-4 pb-14 pt-12 text-center max-[360px]:px-3 sm:px-6 sm:pb-24 sm:pt-24">
           <p className="animate-fade-up mx-auto mb-6 inline-flex items-center gap-1.5 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
             <Sparkles className="size-3.5 text-primary" /> Rule-based and transparent — no AI guesswork
           </p>
-          <h1 className="animate-fade-up text-balance text-4xl font-semibold tracking-tight sm:text-6xl [animation-delay:60ms]">
+          <h1 className="animate-fade-up text-balance text-3xl font-semibold tracking-tight min-[360px]:text-4xl sm:text-6xl [animation-delay:60ms]">
             Is Your GitHub Repository <span className="text-primary">Portfolio-Ready?</span>
           </h1>
           <p className="animate-fade-up mx-auto mt-5 max-w-xl text-pretty text-lg text-muted-foreground [animation-delay:120ms]">
@@ -98,7 +98,7 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
+        <div className="mx-auto max-w-2xl px-4 py-14 text-center max-[360px]:px-3 sm:px-6 sm:py-20">
           <h2 className="text-balance text-3xl font-semibold tracking-tight">Check a repository now</h2>
           <p className="mt-3 text-muted-foreground">It takes a few seconds and works with any public repository.</p>
           <div className="mt-8"><RepoUrlForm /></div>

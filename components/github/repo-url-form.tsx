@@ -104,6 +104,7 @@ export function RepoUrlForm({ defaultValue = "", size = "default", autoFocus, bu
               type="button"
               variant="outline"
               size="sm"
+              className="max-w-full whitespace-normal text-left [overflow-wrap:anywhere]"
               disabled={busy}
               aria-pressed={selectedExample?.url === example.url}
               onClick={() => {
