@@ -16,6 +16,7 @@ import { ErrorState, EmptyState } from "./states";
 import { ACCOUNT_SYNC_ENABLED_KEY, ANALYSIS_HISTORY_KEY, HISTORY_ENABLED_KEY, readAnalysisHistory, readSavedRepositories, SAVED_REPOSITORIES_KEY } from "@/lib/analysis/local-history";
 import { SaveRepositoryButton } from "./save-repository-button";
 import { CopyButton } from "./copy-button";
+import { ShareCardButton } from "./share-card-button";
 
 type State =
   | { status: "idle" }
@@ -257,6 +258,7 @@ function Results({ data, submittedUrl }: { data: AnalysisResult; submittedUrl: s
           <Button type="button" variant="outline" size="sm" onClick={saveAsPdf}>Save as PDF</Button>
           <Button type="button" variant="outline" size="sm" onClick={exportMarkdown}><Download aria-hidden="true" />Export Markdown</Button>
           <CopyButton value={planningSummary} label="Copy plain text summary" />
+          <ShareCardButton repository={data.repo.fullName} score={data.score.score} earned={data.score.earned} complete={data.score.complete} url={data.repo.htmlUrl} />
           <SaveRepositoryButton
             repository={data.repo.fullName}
             url={data.repo.htmlUrl}
