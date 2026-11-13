@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { CheckResult } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,18 +40,14 @@ export function Checklist({ checks, repoUrl, defaultBranch }: { checks: CheckRes
                     {c.matches.map((m) => (
                       <li key={m} className="min-w-0 max-w-full truncate rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground" title={m}>
                         {isFileEvidence(c.id, m) ? (
-                          <a
-                            href={`${repoUrl}/blob/${defaultBranch.split("/").map(encodeURIComponent).join("/")}/${m.split("/").map(encodeURIComponent).join("/")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-primary hover:underline"
-                          >
-                            {m}
-                          </a>
+                          <FileLink repoUrl={repoUrl} defaultBranch={defaultBranch} path={m} />
                         ) : m}
                       </li>
                     ))}
                   </ul>
+                )}
+                {c.matches.length > 0 && isExpandableCheck(c.id) && (
+                  <ExpandedFiles check={c} repoUrl={repoUrl} defaultBranch={defaultBranch} />
                 )}
               </div>
             </li>
@@ -62,4 +61,64 @@ export function Checklist({ checks, repoUrl, defaultBranch }: { checks: CheckRes
 function isFileEvidence(checkId: CheckResult["id"], match: string): boolean {
   if (checkId === "license") return /^(licen[sc]e|copying|unlicense)([-._][A-Za-z0-9.+-]*)?$/i.test(match);
   return checkId === "readme" || checkId === "gitignore" || checkId === "tests" || checkId === "ci";
+}
+
+function isExpandableCheck(checkId: CheckResult["id"]): boolean {
+  return checkId === "readme" || checkId === "license" || checkId === "gitignore" || checkId === "tests" || checkId === "ci";
+}
+
+function FileLink({ repoUrl, defaultBranch, path }: { repoUrl: string; defaultBranch: string; path: string }) {
+  const href = `${repoUrl}/blob/${defaultBranch.split("/").map(encodeURIComponent).join("/")}/${path.split("/").map(encodeURIComponent).join("/")}`;
+  return <a href={href} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">{path}</a>;
+}
+
+function ExpandedFiles({ check, repoUrl, defaultBranch }: { check: CheckResult; repoUrl: string; defaultBranch: string }) {
+  const [files, setFiles] = useState<string[] | null>(null);
+  const [complete, setComplete] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function toggleFiles() {
+    if (files) {
+      setExpanded((current) => !current);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ url: repoUrl, check: check.id });
+      const response = await fetch(`/api/analyze/files?${params.toString()}`);
+      const body = (await response.json()) as { files?: string[]; complete?: boolean; error?: string };
+      if (!response.ok || !body.files) throw new Error(body.error || "The full file list could not be loaded.");
+      setFiles(body.files);
+      setComplete(body.complete ?? false);
+      setExpanded(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The full file list could not be loaded.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-2">
+      <button type="button" onClick={toggleFiles} disabled={loading} aria-expanded={expanded} className="text-xs font-medium text-primary hover:underline disabled:opacity-60">
+        {loading ? "Loading files…" : expanded ? "Hide full file list" : "Show all matching files"}
+      </button>
+      {error && <p role="alert" className="mt-1 text-xs text-danger">{error}</p>}
+      {expanded && files && (
+        <div className="mt-2">
+          <p className="text-xs text-muted-foreground">{files.length.toLocaleString()} matching files{complete ? "" : " · partial list from GitHub"}</p>
+          <ul className="mt-1 max-h-56 space-y-1 overflow-auto rounded-lg border bg-background p-2" aria-label={`All matching ${check.label} files`}>
+            {files.map((file) => (
+              <li key={file} className="truncate font-mono text-xs" title={file}>
+                <FileLink repoUrl={repoUrl} defaultBranch={defaultBranch} path={file} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 }

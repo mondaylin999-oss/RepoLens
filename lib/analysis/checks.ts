@@ -225,3 +225,26 @@ export function runChecks(ctx: CheckContext, definitions: CheckDefinition[] = CH
     };
   });
 }
+
+/** Returns every matching file for the checklist's on-demand expanded evidence view. */
+export function getFileMatches(checkId: CheckId, ctx: CheckContext): string[] {
+  const { tree } = ctx;
+  switch (checkId) {
+    case "readme": {
+      const matches = tree.paths.filter((path) =>
+        README_DIRS.some((dir) => path.startsWith(dir) && !path.slice(dir.length).includes("/") && README_RE.test(path.slice(dir.length))),
+      );
+      return matches.sort((a, b) => Number(!isRoot(a)) - Number(!isRoot(b)));
+    }
+    case "license":
+      return tree.paths.filter((path) => isRoot(path) && LICENSE_RE.test(path));
+    case "gitignore":
+      return tree.paths.filter((path) => path === ".gitignore");
+    case "tests":
+      return projectPaths(tree.paths).filter(isTestPath);
+    case "ci":
+      return tree.paths.filter((path) => WORKFLOW_RE.test(path));
+    default:
+      return [];
+  }
+}
