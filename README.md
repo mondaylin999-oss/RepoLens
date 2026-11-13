@@ -90,6 +90,32 @@ Open http://localhost:3000.
 
 The public analysis API allows 30 analyses per client per minute; expanded file-list requests allow 20 per minute. Limits are shared across instances when Neon is available. Each analysis uses 2 GitHub API calls, or 3 when the default branch name contains `/`. Without a GitHub token, the separate GitHub allowance is about 30 analyses per hour per server IP, so set `GITHUB_TOKEN` in production if traffic requires it.
 
+## GitHub Action
+
+The composite action at `.github/actions/repolens-analysis` analyzes a public GitHub repository and adds its readiness score, check evidence, and top recommendations to the GitHub Actions job summary. This repository also runs it weekly and on demand in `.github/workflows/repolens-analysis.yml`.
+
+Use the action from a workflow in another repository:
+
+```yaml
+name: Portfolio readiness
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  repolens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mondaylin999-oss/RepoLens/.github/actions/repolens-analysis@main
+        with:
+          repository: ${{ github.repository }}
+          # Optional: mark the job failed after publishing the summary if the score is lower.
+          # minimum-score: 70
+```
+
+The repository input defaults to `${{ github.repository }}`. It accepts `owner/name` or a GitHub URL; private repositories are not supported. The action uses the public RepoLens API, so it needs no GitHub token or other secret. Its optional `minimum-score` input accepts a whole number from 0 to 100. A low or incomplete score is reported in the summary, then fails the action only when a minimum is configured. Detected test files are not executed.
+
 ## Scripts
 
 ```bash

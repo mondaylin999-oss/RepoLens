@@ -1,0 +1,29 @@
+name: RepoLens repository analysis
+description: Analyze a public GitHub repository and add the RepoLens score and checks to the workflow summary.
+inputs:
+  repository:
+    description: Public GitHub repository as owner/name or a github.com URL. Defaults to the current repository.
+    required: false
+    default: ''
+  minimum-score:
+    description: Optional minimum score from 0 to 100. The action fails after publishing the summary when the score is lower.
+    required: false
+    default: ''
+  api-url:
+    description: RepoLens version 1 analysis API endpoint.
+    required: false
+    default: https://repo-lens-free-frame.vercel.app/api/v1/analyze
+outputs:
+  score:
+    description: Readiness score from 0 to 100, or empty when analysis is incomplete.
+    value: ${{ steps.analyze.outputs.score }}
+runs:
+  using: composite
+  steps:
+    - id: analyze
+      shell: bash
+      env:
+        REPOLENS_REPOSITORY: ${{ inputs.repository }}
+        REPOLENS_MINIMUM_SCORE: ${{ inputs.minimum-score }}
+        REPOLENS_API_URL: ${{ inputs.api-url }}
+      run: node "${{ github.action_path }}/run.mjs"
