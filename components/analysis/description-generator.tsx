@@ -130,11 +130,33 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
             {FORMATS.map((f) => (
               <button
                 key={f.id}
+                id={`description-tab-${f.id}`}
+                data-format-tab={f.id}
                 role="tab"
                 type="button"
                 aria-selected={format === f.id}
-                aria-controls="description-text"
+                aria-controls="description-format-panel"
+                tabIndex={format === f.id ? 0 : -1}
                 onClick={() => setFormat(f.id)}
+                onKeyDown={(event) => {
+                  const currentIndex = FORMATS.findIndex((item) => item.id === f.id);
+                  const nextIndex = event.key === "ArrowRight"
+                    ? (currentIndex + 1) % FORMATS.length
+                    : event.key === "ArrowLeft"
+                      ? (currentIndex - 1 + FORMATS.length) % FORMATS.length
+                      : event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? FORMATS.length - 1
+                          : currentIndex;
+                  if (nextIndex === currentIndex) return;
+                  event.preventDefault();
+                  const nextFormat = FORMATS[nextIndex];
+                  setFormat(nextFormat.id);
+                  event.currentTarget.parentElement
+                    ?.querySelector<HTMLButtonElement>(`[data-format-tab="${nextFormat.id}"]`)
+                    ?.focus();
+                }}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                   format === f.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
@@ -176,7 +198,7 @@ export function DescriptionGenerator({ description, repo }: { description: Portf
           </label>
         )}
         <div className={compareMode ? "grid gap-4 lg:grid-cols-2" : ""}>
-          <div>
+          <div id="description-format-panel" role="tabpanel" aria-labelledby={`description-tab-${format}`}>
             <label htmlFor="description-text" className="mb-1 block text-xs font-medium text-muted-foreground">{FORMATS.find((item) => item.id === format)?.label}</label>
             <Textarea
               id="description-text"
